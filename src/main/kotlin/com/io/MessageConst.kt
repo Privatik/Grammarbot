@@ -1,4 +1,4 @@
-package com.io.util
+package com.io
 
 interface Message{
     val ru: String
@@ -17,7 +17,7 @@ interface Message{
     }
 }
 
-object StartMessage: Message{
+object StartMessage: Message {
     override val ru: String
         get() = "Этот бот для изучения грамматики"
 

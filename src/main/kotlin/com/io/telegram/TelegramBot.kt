@@ -12,6 +12,7 @@ class TelegramBot(
     private val botPath: String
 ): TelegramWebhookBot() {
     private val facade: TelegramBotFacade by inject(TelegramBotFacade::class.java)
+    private val method: TelegramMethod by inject(TelegramMethod::class.java)
 
     override fun getBotPath(): String = botPath
     override fun getBotToken(): String = botToken
@@ -19,7 +20,7 @@ class TelegramBot(
 
     suspend fun onWebhookUpdateReceived(update: com.io.telegram.Update) {
         facade.handleUpdate(update)?.also {
-            executeAsyncMessage(it)
+            method.execute(it)
         }
     }
 

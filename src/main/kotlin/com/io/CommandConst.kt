@@ -1,4 +1,4 @@
-package com.io.util
+package com.io
 
 object CommandConst {
     const val START = "/start"
