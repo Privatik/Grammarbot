@@ -5,9 +5,9 @@ import com.io.cache.entity.SectionRuleEntity
 
 interface SectionCache {
 
-    fun saveSection(sectionEntity: SectionEntity): Long
+    suspend fun saveSection(sectionEntity: SectionEntity): Long
 
-    fun getAllSection(): List<SectionEntity>
+    suspend fun getAllSection(): List<SectionEntity>
 
-    fun saveRule(sectionRuleEntity: SectionRuleEntity)
+    suspend fun saveRule(sectionRuleEntity: SectionRuleEntity)
 }

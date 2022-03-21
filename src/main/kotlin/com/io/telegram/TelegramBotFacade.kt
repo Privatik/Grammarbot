@@ -1,15 +1,17 @@
 package com.io.telegram
 
 import com.io.resourse.translateKeyboardMarkup
-import com.io.util.keyBoardMarkup
+import com.io.service.inlineKeyBoardMarkup
 import com.io.CommandConst
 import com.io.StartMessage
+import com.io.model.Language
+import com.io.service.replyKeyBoardMarkup
 
 class TelegramBotFacade {
 
-    private var currentLanguage = com.io.Message.Language.EN
+    private var currentLanguage = Language.EN
 
-    suspend fun handleUpdate(update: Update): TelegramRequest?{
+    suspend fun handleUpdate(update: Update): List<TelegramRequest>? {
         if (update.hasCallbackQuery()){
             return handleCallbackQuery(update.callback_query!!)
         }
@@ -20,35 +22,58 @@ class TelegramBotFacade {
         return null
     }
 
-    private suspend fun handleMessage(message: Message): TelegramRequest.SendMessageRequest{
+    private suspend fun handleMessage(message: Message): List<TelegramRequest>{
+        val messages = mutableListOf<TelegramRequest>()
+
         val replyMessage = when (message.text){
             CommandConst.START -> StartMessage.get(currentLanguage)
             else -> "Hi ${message.text}"
         }
 
-        val replyMarkup = if (message.text == CommandConst.START) keyBoardMarkup() else null
+        val replyMarkup = if (message.text == CommandConst.START) replyKeyBoardMarkup(currentLanguage) else null
 
-        return sendMessage(
-            chat_id = message.chat.id,
-            text = replyMessage,
-            replyMarkup = replyMarkup
+        messages.add(
+            sendMessage(
+                chat_id = message.chat.id,
+                text = replyMessage,
+                replyMarkup = replyMarkup
+            )
         )
+
+        if (message.text == CommandConst.START){
+            messages.add(
+                editMessageText(
+                    chat_id = message.chat.id,
+                    text = replyMessage,
+                    messageId = message.message_id,
+                    replyMarkup = inlineKeyBoardMarkup(currentLanguage)
+                )
+            )
+        }
+
+        return messages
     }
 
-    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): TelegramRequest.EditMessageTextRequest{
+    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): List<TelegramRequest>{
+        val messages = mutableListOf<TelegramRequest>()
+
         if (callbackQuery.data == translateKeyboardMarkup.callbackData){
-                currentLanguage = if (currentLanguage == com.io.Message.Language.EN){
-                    com.io.Message.Language.RU
+                currentLanguage = if (currentLanguage == Language.EN){
+                    Language.RU
                 } else {
-                    com.io.Message.Language.EN
+                    Language.EN
                 }
             }
 
-        return editMessageText(
-            chat_id = callbackQuery.message!!.chat.id,
-            text = StartMessage.get(currentLanguage),
-            messageId = callbackQuery.message!!.message_id,
-            replyMarkup = keyBoardMarkup()
+        messages.add(
+            editMessageText(
+                chat_id = callbackQuery.message!!.chat.id,
+                text = StartMessage.get(currentLanguage),
+                messageId = callbackQuery.message!!.message_id,
+                replyMarkup = inlineKeyBoardMarkup(currentLanguage)
+            )
         )
+
+        return messages
     }
 }

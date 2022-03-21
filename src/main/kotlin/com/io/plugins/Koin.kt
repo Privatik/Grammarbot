@@ -1,6 +1,7 @@
 package com.io.plugins
 
 import com.io.di.botModule
+import com.io.di.cacheTestModule
 import io.ktor.application.*
 import org.koin.ktor.ext.Koin
 
@@ -15,7 +16,8 @@ fun Application.configureKoin() {
                 botName = userName!!,
                 botToken = botToken!!,
                 botPath = webHookPath!!
-            )
+            ),
+            cacheTestModule
         )
     }
 }

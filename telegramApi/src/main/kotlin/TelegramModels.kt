@@ -8,7 +8,8 @@ sealed class InputMessageContent : TelegramModel()
 sealed class InlineQueryResult : TelegramModel()
 sealed class PassportElementError : TelegramModel()
 
-interface ReplyKeyboard
+@Serializable
+sealed class ReplyKeyboard: TelegramModel()
 
 @Serializable
 data class Update(
@@ -258,7 +259,7 @@ data class ReplyKeyboardMarkup(
     val resize_keyboard: Boolean? = null,
     val one_time_keyboard: Boolean? = null,
     val selective: Boolean? = null
-) : TelegramModel()
+) : ReplyKeyboard()
 
 
 @Serializable
@@ -273,13 +274,13 @@ data class KeyboardButton(
 data class ReplyKeyboardRemove(
     val remove_keyboard: Boolean,
     val selective: Boolean? = null
-) : TelegramModel(), ReplyKeyboard
+) : ReplyKeyboard()
 
 
 @Serializable
 data class InlineKeyboardMarkup(
     val inline_keyboard: List<List<InlineKeyboardButton>>
-) : TelegramModel(), ReplyKeyboard
+) : ReplyKeyboard()
 
 
 @Serializable

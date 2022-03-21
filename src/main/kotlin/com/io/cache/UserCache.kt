@@ -1,8 +1,13 @@
 package com.io.cache
 
+import com.io.cache.entity.UserEntity
+import com.io.cache.entity.UserState
+
 interface UserCache {
 
-    fun saveUser(userId: String): Boolean
+    suspend fun getUser(chatId: String): UserEntity?
 
-    fun updateStateUser(userId: String)
+    suspend fun saveUser(userId: String): Boolean
+
+    suspend fun updateStateUser(chatId: String, state: UserState)
 }

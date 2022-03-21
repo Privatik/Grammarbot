@@ -14,6 +14,8 @@ repositories {
 
 dependencies {
     implementation("io.ktor:ktor-serialization:$ktor_version")
+    implementation("io.ktor:ktor-client-serialization:$ktor_version")
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 }

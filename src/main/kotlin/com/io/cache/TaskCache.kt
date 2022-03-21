@@ -4,6 +4,6 @@ import com.io.cache.entity.TaskEntity
 
 interface TaskCache {
 
-    fun getRandomTaskFromSection(sectionId: Long): TaskEntity
+    suspend fun getRandomTaskFromSection(sectionId: Long): TaskEntity
 
 }
