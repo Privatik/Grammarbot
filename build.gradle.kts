@@ -6,7 +6,7 @@ val koin_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.6.10"
-                id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
 }
 
 group = "com.io"
@@ -23,11 +23,15 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":telegramApi"))
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("org.telegram:telegrambots-spring-boot-starter:5.0.1")
+
+    //coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0")
 
     // Koin core features
     implementation("io.insert-koin:koin-ktor:$koin_version")
