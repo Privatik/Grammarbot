@@ -1,17 +1,33 @@
-package com.io.cache.impl
+package com.io.service.impl
 
-import com.io.cache.UserCache
-import com.io.cache.entity.UserEntity
-import com.io.cache.entity.UserState
+import com.io.service.UserService
+import com.io.service.entity.MessageEntity
+import com.io.service.entity.UserEntity
+import com.io.service.entity.UserState
 import com.io.model.Language
+import com.io.repository.MessageRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class UserCacheImpl: UserCache {
+class UserServiceImpl(
+   private val messageRepository: MessageRepository
+): UserService {
     private val users = mutableListOf<UserEntity>()
 
     override suspend fun getUser(chatId: String): UserEntity? = withContext(Dispatchers.IO){
         return@withContext users.find { it.chatId == chatId }
+    }
+
+    override suspend fun saveMessageIds(chatId: String, messages: List<Int>) {
+        messageRepository.saveMessageIds(chatId, messages)
+    }
+
+    override suspend fun getMessageIds(chatId: String, isDeleteMessage: () -> Boolean) {
+        messageRepository.getMessageIds(chatId,isDeleteMessage)
+    }
+
+    override suspend fun deleteMessageIds(chatId: String, messages: List<Int>) {
+        messageRepository.deleteMessageIds(chatId, messages)
     }
 
     override suspend fun saveUser(chatId: String): Boolean = withContext(Dispatchers.IO){

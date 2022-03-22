@@ -1,76 +1,73 @@
 package com.io.telegram
 
 import com.io.resourse.translateKeyboardMarkup
-import com.io.service.inlineKeyBoardMarkup
+import com.io.util.inlineKeyBoardMarkup
 import com.io.CommandConst
 import com.io.StartMessage
 import com.io.model.Language
-import com.io.service.replyKeyBoardMarkup
+import com.io.service.UserService
 
-class TelegramBotFacade {
-
+class TelegramBotFacade(
+    private val userService: UserService
+) {
     private var currentLanguage = Language.EN
 
-    suspend fun handleUpdate(update: Update): List<TelegramRequest>? {
+    suspend fun handleUpdate(update: Update): Pair<String,List<TelegramBehaviour>>? {
         if (update.hasCallbackQuery()){
-            return handleCallbackQuery(update.callback_query!!)
+            return Pair(update.callback_query!!.message!!.chat.id,handleCallbackQuery(update.callback_query!!))
         }
 
         if (update.hasMessage() && update.message!!.hasText()){
-            return handleMessage(update.message!!)
+            return Pair(update.message!!.chat.id,handleMessage(update.message!!))
         }
         return null
     }
 
-    private suspend fun handleMessage(message: Message): List<TelegramRequest>{
-        val messages = mutableListOf<TelegramRequest>()
+    private suspend fun handleMessage(message: Message): List<TelegramBehaviour>{
+        val messages = mutableListOf<TelegramBehaviour>()
 
         val replyMessage = when (message.text){
-            CommandConst.START -> StartMessage.get(currentLanguage)
+            CommandConst.START -> return getStartMessages(message, currentLanguage)
             else -> "Hi ${message.text}"
         }
 
-        val replyMarkup = if (message.text == CommandConst.START) replyKeyBoardMarkup(currentLanguage) else null
-
-        messages.add(
-            sendMessage(
+        val sendMessage = sendMessage(
                 chat_id = message.chat.id,
                 text = replyMessage,
-                replyMarkup = replyMarkup
+                replyMarkup = ReplyKeyboardRemove(true)
             )
-        )
 
-        if (message.text == CommandConst.START){
-            messages.add(
-                editMessageText(
-                    chat_id = message.chat.id,
-                    text = replyMessage,
-                    messageId = message.message_id,
-                    replyMarkup = inlineKeyBoardMarkup(currentLanguage)
-                )
-            )
-        }
+        messages.add(
+            sendMessage.asSendBehaviour()
+        )
 
         return messages
     }
 
-    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): List<TelegramRequest>{
-        val messages = mutableListOf<TelegramRequest>()
+    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): List<TelegramBehaviour>{
+        val messages = mutableListOf<TelegramBehaviour>()
 
-        if (callbackQuery.data == translateKeyboardMarkup.callbackData){
+        val neMessages = when (callbackQuery.data){
+            translateKeyboardMarkup.callbackData -> {
                 currentLanguage = if (currentLanguage == Language.EN){
                     Language.RU
                 } else {
                     Language.EN
                 }
+
+                userService.getMessageIds(callbackQuery.message!!.chat.id){true}
             }
+            else -> throw Exception("Not find callback")
+        }
 
         messages.add(
-            editMessageText(
-                chat_id = callbackQuery.message!!.chat.id,
-                text = StartMessage.get(currentLanguage),
-                messageId = callbackQuery.message!!.message_id,
-                replyMarkup = inlineKeyBoardMarkup(currentLanguage)
+            TelegramBehaviour.Send(
+                editMessageText(
+                    chat_id = callbackQuery.message!!.chat.id,
+                    text = StartMessage.get(currentLanguage),
+                    messageId = callbackQuery.message!!.message_id,
+                    replyMarkup = inlineKeyBoardMarkup(currentLanguage)
+                )
             )
         )
 

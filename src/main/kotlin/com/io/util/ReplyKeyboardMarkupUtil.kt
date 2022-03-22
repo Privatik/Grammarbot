@@ -1,27 +1,25 @@
-package com.io.service
+package com.io.util
 
-import com.io.StartMessage
 import com.io.model.Language
-import com.io.resourse.translateKeyboardMarkup
-import com.io.telegram.InlineKeyboardButton
-import com.io.telegram.InlineKeyboardMarkup
+import com.io.resourse.startLearningKeyboardMarkup
 import com.io.telegram.KeyboardButton
 import com.io.telegram.ReplyKeyboardMarkup
 
 fun replyKeyBoardMarkup(
-    currentLanguage: Language
+    currentLanguage: Language,
+    isStartLearning: Boolean = false
 ): ReplyKeyboardMarkup {
     val translateButton = keyBoardMarkupStartLearning(currentLanguage)
     val markup = ReplyKeyboardMarkup(
         keyboard = listOf(listOf(translateButton)),
-        resize_keyboard = true
+        resize_keyboard = true,
     )
     return markup
 }
 
 private fun keyBoardMarkupStartLearning(currentLanguage: Language): KeyboardButton{
     val button = KeyboardButton(
-        text = translateKeyboardMarkup.text(currentLanguage)
+        text = startLearningKeyboardMarkup.text(currentLanguage)
     )
     return button
 }

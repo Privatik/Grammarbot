@@ -1,6 +1,6 @@
-package com.io.cache
+package com.io.service
 
-import com.io.cache.entity.TaskEntity
+import com.io.service.entity.TaskEntity
 
 interface TaskCache {
 

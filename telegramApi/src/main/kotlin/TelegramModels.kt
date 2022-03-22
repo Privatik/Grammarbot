@@ -1,5 +1,6 @@
 package com.io.telegram
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 sealed class TelegramModel
@@ -45,7 +46,7 @@ data class WebhookInfo(
 @Serializable
 data class User(
     val id: String,
-    val is_bot: Boolean,
+    val is_bot: Boolean = false,
     val first_name: String,
     val last_name: String? = null,
     val username: String? = null,
@@ -73,7 +74,7 @@ data class Chat(
 data class Message(
     val message_id: Int,
     val from: User? = null,
-    val date: Int,
+    val date: Long,
     val chat: Chat,
     val forward_from: User? = null,
     val forward_from_chat: Chat? = null,

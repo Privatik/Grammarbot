@@ -1,6 +1,4 @@
-package com.io.cache.entity
-
-import com.google.common.math.LongMath
+package com.io.service.entity
 
 data class TaskEntity(
     val id: Long,

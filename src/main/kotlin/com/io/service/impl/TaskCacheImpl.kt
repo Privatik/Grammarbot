@@ -1,7 +1,7 @@
-package com.io.cache.impl
+package com.io.service.impl
 
-import com.io.cache.TaskCache
-import com.io.cache.entity.TaskEntity
+import com.io.service.TaskCache
+import com.io.service.entity.TaskEntity
 
 class TaskCacheImpl: TaskCache {
 

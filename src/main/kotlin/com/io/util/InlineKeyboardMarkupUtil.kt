@@ -1,6 +1,5 @@
-package com.io.service
+package com.io.util
 
-import com.io.StartMessage
 import com.io.model.Language
 import com.io.resourse.translateKeyboardMarkup
 import com.io.telegram.InlineKeyboardButton

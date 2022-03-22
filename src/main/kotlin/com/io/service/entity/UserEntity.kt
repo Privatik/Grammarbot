@@ -1,4 +1,4 @@
-package com.io.cache.entity
+package com.io.service.entity
 
 import com.io.model.Language
 

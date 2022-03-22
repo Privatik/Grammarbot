@@ -1,8 +1,8 @@
-package com.io.cache.impl
+package com.io.service.impl
 
-import com.io.cache.SectionCache
-import com.io.cache.entity.SectionEntity
-import com.io.cache.entity.SectionRuleEntity
+import com.io.service.SectionCache
+import com.io.service.entity.SectionEntity
+import com.io.service.entity.SectionRuleEntity
 
 class SectionCacheImpl: SectionCache {
 

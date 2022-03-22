@@ -1,15 +1,16 @@
 package com.io.di
 
-import com.io.cache.SectionCache
-import com.io.cache.TaskCache
-import com.io.cache.UserCache
-import com.io.cache.impl.SectionCacheImpl
-import com.io.cache.impl.TaskCacheImpl
-import com.io.cache.impl.UserCacheImpl
+import com.io.repository.MessageRepository
+import com.io.repository.impl.MessageRepositoryImpl
+import com.io.service.SectionCache
+import com.io.service.TaskCache
+import com.io.service.UserService
+import com.io.service.impl.SectionCacheImpl
+import com.io.service.impl.TaskCacheImpl
+import com.io.service.impl.UserServiceImpl
 import com.io.telegram.TelegramBot
 import com.io.telegram.TelegramBotFacade
 import com.io.telegram.TelegramMethod
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 fun botModule(
@@ -25,12 +26,16 @@ fun botModule(
         )
     }
 
-    factory { TelegramBotFacade() }
+    factory { TelegramBotFacade(get()) }
     factory { TelegramMethod(botToken) }
 }
 
-val cacheTestModule = module {
-    factory<UserCache> { UserCacheImpl() }
+val serviceModule = module {
+    factory<UserService> { UserServiceImpl(get()) }
     factory<TaskCache> { TaskCacheImpl() }
     factory<SectionCache> { SectionCacheImpl() }
+}
+
+val repositoryTestModule = module {
+    factory<MessageRepository> { MessageRepositoryImpl() }
 }

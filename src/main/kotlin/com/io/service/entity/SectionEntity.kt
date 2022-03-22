@@ -1,4 +1,4 @@
-package com.io.cache.entity
+package com.io.service.entity
 
 data class SectionEntity(
     val id: Long,

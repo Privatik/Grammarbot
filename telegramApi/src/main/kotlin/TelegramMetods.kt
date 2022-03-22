@@ -1,15 +1,12 @@
 package com.io.telegram
 
-import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.serialization.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -35,7 +32,20 @@ sealed class TelegramRequest(val path: String){
         val disable_notification: Boolean? = null,
         val reply_to_message_id: Int? = null,
         @Contextual val reply_markup: ReplyKeyboard? = null
-    ) : TelegramRequest("sendMessage")
+    ) : TelegramRequest("sendMessage") {
+        
+        fun asSendBehaviour(
+            delay: Long = 0
+        ): TelegramBehaviour.Send =
+            TelegramBehaviour.Send(this, delay)
+
+        fun asUpdateBehaviour(
+            editMessageTextRequest: EditMessageTextRequest,
+            delay: Long = 0
+        ): TelegramBehaviour.UpdateBehaviour =
+            TelegramBehaviour.UpdateBehaviour(this, editMessageTextRequest, delay)
+                
+    }
 
     //Update
     @Serializable
@@ -60,22 +70,10 @@ sealed class TelegramRequest(val path: String){
 class TelegramMethod(
     botToken: String
 ) {
-    private val basePath = "https://api.telegram.org/bot${botToken}"
-    private val client = HttpClient(CIO){
-        install(JsonFeature){
-            serializer = KotlinxSerializer()
-        }
-    }
+    private val client = TelegramHttpClient(botToken)
 
-    suspend fun execute(bodies: List<TelegramRequest>) = withContext(Dispatchers.IO) {
-        val res = bodies.map { body ->
-            async {
-                client.post<HttpResponse>("$basePath/${body.path}") {
-                    this.body = body
-                    contentType(ContentType.Application.Json)
-                }
-            }
-        }
-        res.awaitAll()
+    suspend fun execute(bodies: List<TelegramBehaviour>): List<Int> {
+        return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().map { it.result.message_id }
     }
+    
 }
