@@ -4,73 +4,54 @@ import com.io.resourse.translateKeyboardMarkup
 import com.io.util.inlineKeyBoardMarkup
 import com.io.CommandConst
 import com.io.StartMessage
+import com.io.interactor.TelegramInteractor
 import com.io.model.Language
+import com.io.model.MessageGroup
 import com.io.service.UserService
 
-class TelegramBotFacade(
-    private val userService: UserService
+internal class TelegramBotFacade(
+    private val userService: UserService,
+    private val telegramInteractor: TelegramInteractor,
+    private val telegramMessageHandler: TelegramMessageHandler
 ) {
-    private var currentLanguage = Language.EN
 
-    suspend fun handleUpdate(update: Update): Pair<String,List<TelegramBehaviour>>? {
+    suspend fun handleUpdate(update: Update): TelegramResult? {
         if (update.hasCallbackQuery()){
-            return Pair(update.callback_query!!.message!!.chat.id,handleCallbackQuery(update.callback_query!!))
+            val messageIds = telegramInteractor.getMessage(update.callback_query!!.message!!.chat.id) {
+                group == MessageGroup.START || group == MessageGroup.CHOICE_SECTION
+            }
+            return telegramMessageHandler.handleCallbackQuery(update.callback_query!!, messageIds)?.asTelegramResult()
         }
 
         if (update.hasMessage() && update.message!!.hasText()){
-            return Pair(update.message!!.chat.id,handleMessage(update.message!!))
+            return telegramMessageHandler.handleMessage(update.message!!)?.asTelegramResult()
         }
+
         return null
     }
 
-    private suspend fun handleMessage(message: Message): List<TelegramBehaviour>{
-        val messages = mutableListOf<TelegramBehaviour>()
-
-        val replyMessage = when (message.text){
-            CommandConst.START -> return getStartMessages(message, currentLanguage)
-            else -> "Hi ${message.text}"
+    private suspend fun TelegramMessageHandler.Result.asTelegramResult(): TelegramResult{
+        val method: suspend (messageIds: List<Int>) -> Unit = when (finishBehavior){
+            TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(chatId)
+            TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Int> -> }
+            TelegramMessageHandler.Result.BehaviorForMessages.Translate -> translateMessage(chatId)
         }
 
-        val sendMessage = sendMessage(
-                chat_id = message.chat.id,
-                text = replyMessage,
-                replyMarkup = ReplyKeyboardRemove(true)
-            )
-
-        messages.add(
-            sendMessage.asSendBehaviour()
+        return TelegramResult(
+            behaviours = behaviours,
+            doFinish = method
         )
-
-        return messages
     }
 
-    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): List<TelegramBehaviour>{
-        val messages = mutableListOf<TelegramBehaviour>()
-
-        val neMessages = when (callbackQuery.data){
-            translateKeyboardMarkup.callbackData -> {
-                currentLanguage = if (currentLanguage == Language.EN){
-                    Language.RU
-                } else {
-                    Language.EN
-                }
-
-                userService.getMessageIds(callbackQuery.message!!.chat.id){true}
-            }
-            else -> throw Exception("Not find callback")
+    private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
+        return {
+            telegramInteractor.saveMessage(chatId, it)
         }
+    }
 
-        messages.add(
-            TelegramBehaviour.Send(
-                editMessageText(
-                    chat_id = callbackQuery.message!!.chat.id,
-                    text = StartMessage.get(currentLanguage),
-                    messageId = callbackQuery.message!!.message_id,
-                    replyMarkup = inlineKeyBoardMarkup(currentLanguage)
-                )
-            )
-        )
-
-        return messages
+    private suspend fun translateMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
+        return {
+            telegramInteractor.saveMessage(chatId, it)
+        }
     }
 }

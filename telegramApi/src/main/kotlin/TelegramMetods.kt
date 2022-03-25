@@ -14,6 +14,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class TelegramRequest(val path: String){
 
+    fun asSendBehaviour(
+        name: String,
+        delay: Long = 0
+    ): TelegramBehaviour.Send =
+        TelegramBehaviour.Send(name,this, delay)
+
     //Setting
 
     @Serializable
@@ -33,17 +39,13 @@ sealed class TelegramRequest(val path: String){
         val reply_to_message_id: Int? = null,
         @Contextual val reply_markup: ReplyKeyboard? = null
     ) : TelegramRequest("sendMessage") {
-        
-        fun asSendBehaviour(
-            delay: Long = 0
-        ): TelegramBehaviour.Send =
-            TelegramBehaviour.Send(this, delay)
 
         fun asUpdateBehaviour(
+            name: String,
             editMessageTextRequest: EditMessageTextRequest,
             delay: Long = 0
         ): TelegramBehaviour.UpdateBehaviour =
-            TelegramBehaviour.UpdateBehaviour(this, editMessageTextRequest, delay)
+            TelegramBehaviour.UpdateBehaviour(name,this, editMessageTextRequest, delay)
                 
     }
 
@@ -68,9 +70,10 @@ sealed class TelegramRequest(val path: String){
 }
 
 class TelegramMethod(
-    botToken: String
+    botToken: String,
+    isDebug: Boolean
 ) {
-    private val client = TelegramHttpClient(botToken)
+    private val client = TelegramHttpClient(botToken, isDebug)
 
     suspend fun execute(bodies: List<TelegramBehaviour>): List<Int> {
         return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().map { it.result.message_id }

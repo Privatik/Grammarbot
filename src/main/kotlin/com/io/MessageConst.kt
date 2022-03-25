@@ -14,14 +14,6 @@ interface Message{
     }
 }
 
-object KnowWhenStartMessage: Message {
-    override val ru: String
-        get() = "Сообщите когда решите начать"
-
-    override val en: String
-        get() = "Let us know when you decide to start"
-}
-
 object StartMessage: Message {
     override val ru: String
         get() = "Этот бот для изучения грамматики"
@@ -38,10 +30,10 @@ object TranslateMessage: Message {
         get() = "Translate"
 }
 
-object StartLearningMessage: Message {
+object ChoiceLessonMessage: Message {
     override val ru: String
-        get() = "Начать обучение"
+        get() = "Выберите урок"
     override val en: String
-        get() = "Start learning"
+        get() = "Choice lesson"
 
 }

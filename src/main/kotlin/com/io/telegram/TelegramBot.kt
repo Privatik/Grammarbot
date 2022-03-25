@@ -19,8 +19,9 @@ class TelegramBot(
     override fun getBotUsername(): String = botName
 
     suspend fun onWebhookUpdateReceived(update: com.io.telegram.Update) {
-        facade.handleUpdate(update)?.also { messages ->
-            val messagesIds = method.execute(messages.second)
+        facade.handleUpdate(update)?.also { result ->
+            val messagesIds = method.execute(result.behaviours)
+            result.doFinish(messagesIds)
         }
     }
 

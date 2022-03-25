@@ -1,5 +1,7 @@
 package com.io.di
 
+import com.io.interactor.TelegramInteractor
+import com.io.interactor.TelegramInteractorImpl
 import com.io.repository.MessageRepository
 import com.io.repository.impl.MessageRepositoryImpl
 import com.io.service.SectionCache
@@ -16,7 +18,8 @@ import org.koin.dsl.module
 fun botModule(
     botToken: String,
     botName: String,
-    botPath: String
+    botPath: String,
+    isDebug: Boolean
 ) = module {
     single {
         TelegramBot(
@@ -26,14 +29,18 @@ fun botModule(
         )
     }
 
-    factory { TelegramBotFacade(get()) }
-    factory { TelegramMethod(botToken) }
+    factory { TelegramBotFacade(get(), get(), get()) }
+    factory { TelegramMethod(botToken, isDebug) }
 }
 
 val serviceModule = module {
     factory<UserService> { UserServiceImpl(get()) }
     factory<TaskCache> { TaskCacheImpl() }
     factory<SectionCache> { SectionCacheImpl() }
+}
+
+val interactorModule = module {
+    factory<TelegramInteractor> { TelegramInteractorImpl(get()) }
 }
 
 val repositoryTestModule = module {

@@ -1,5 +1,6 @@
 package com.io.repository.impl
 
+import com.io.model.MessageGroup
 import com.io.repository.MessageRepository
 import com.io.service.entity.MessageEntity
 
@@ -11,14 +12,16 @@ class MessageRepositoryImpl: MessageRepository {
             this.messages.add(
                 MessageEntity(
                     id = it,
-                    chatId = chatId
+                    chatId = chatId,
+                    group = MessageGroup.START
                 )
             )
         }
     }
 
-    override suspend fun getMessageIds(chatId: String, isDeleteMessage: () -> Boolean): List<Int> {
-        return messages.filter{ isDeleteMessage() }.map { it.id }
+
+    override suspend fun getMessageIds(chatId: String, term: (MessageGroup) -> Boolean): List<Int> {
+        return messages.filter{ term(it.group) }.map { it.id }
     }
 
     override suspend fun deleteMessageIds(chatId: String, messages: List<Int>) {

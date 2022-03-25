@@ -12,13 +12,16 @@ import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
 
 class TelegramHttpClient(
-    botToken: String
+    botToken: String,
+    isDebug: Boolean
 ) {
     private val basePath = "https://api.telegram.org/bot${botToken}"
     private val client = HttpClient(CIO){
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.BODY
+        if (isDebug){
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.BODY
+            }
         }
         install(JsonFeature){
             serializer = KotlinxSerializer(

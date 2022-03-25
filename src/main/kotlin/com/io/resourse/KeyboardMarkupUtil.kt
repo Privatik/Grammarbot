@@ -1,7 +1,6 @@
 package com.io.resourse
 
-import com.io.StartLearningMessage
-import com.io.StartMessage
+import com.io.ChoiceLessonMessage
 import com.io.TranslateMessage
 import com.io.model.Language
 
@@ -16,6 +15,6 @@ val translateKeyboardMarkup = KeyboardMarkup(
 )
 
 val startLearningKeyboardMarkup = KeyboardMarkup(
-    text = StartLearningMessage::get,
+    text = ChoiceLessonMessage::get,
     callbackData = null
 )
