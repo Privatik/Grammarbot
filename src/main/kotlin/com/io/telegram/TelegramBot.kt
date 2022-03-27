@@ -1,6 +1,5 @@
 package com.io.telegram
 
-import com.io.service.UserService
 import org.koin.java.KoinJavaComponent.inject
 import org.telegram.telegrambots.bots.TelegramWebhookBot
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod

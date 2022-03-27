@@ -9,7 +9,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.json.Json
 
 @Serializable
 sealed class TelegramRequest(val path: String){
@@ -22,10 +25,8 @@ sealed class TelegramRequest(val path: String){
 
     //Setting
 
-    @Serializable
-    data class SetWebhookRequest(
-        val url: String,
-    ) : TelegramRequest("setWebhook")
+    object GetWebhookRequest: TelegramRequest("getWebhookInfo")
+    object SetWebhookRequest: TelegramRequest("setWebhook")
 
     //Send
 
@@ -74,6 +75,16 @@ class TelegramMethod(
     isDebug: Boolean
 ) {
     private val client = TelegramHttpClient(botToken, isDebug)
+
+    suspend fun <T> get(
+        request: TelegramRequest,
+        params: Map<String, Any> = mapOf(),
+        isGetResult: Boolean = true,
+        serializer: KSerializer<T>
+    ): T {
+        val json = client.getResponse(request, params).await()
+        return Json { ignoreUnknownKeys = true }.decodeFromString(TelegramHttpClient.TelegramResponse.serializer(serializer), json).result
+    }
 
     suspend fun execute(bodies: List<TelegramBehaviour>): List<Int> {
         return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().map { it.result.message_id }

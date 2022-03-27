@@ -1,16 +1,11 @@
 package com.io.telegram
 
-import com.io.resourse.translateKeyboardMarkup
-import com.io.util.inlineKeyBoardMarkup
-import com.io.CommandConst
-import com.io.StartMessage
 import com.io.interactor.TelegramInteractor
-import com.io.model.Language
 import com.io.model.MessageGroup
-import com.io.service.UserService
+import com.io.cache.UserCache
 
 internal class TelegramBotFacade(
-    private val userService: UserService,
+    private val userCache: UserCache,
     private val telegramInteractor: TelegramInteractor,
     private val telegramMessageHandler: TelegramMessageHandler
 ) {
@@ -34,7 +29,7 @@ internal class TelegramBotFacade(
         val method: suspend (messageIds: List<Int>) -> Unit = when (finishBehavior){
             TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(chatId)
             TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Int> -> }
-            TelegramMessageHandler.Result.BehaviorForMessages.Translate -> translateMessage(chatId)
+            TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : List<Int> -> }
         }
 
         return TelegramResult(
@@ -44,12 +39,6 @@ internal class TelegramBotFacade(
     }
 
     private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
-        return {
-            telegramInteractor.saveMessage(chatId, it)
-        }
-    }
-
-    private suspend fun translateMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
         return {
             telegramInteractor.saveMessage(chatId, it)
         }

@@ -2,17 +2,17 @@ package com.io.di
 
 import com.io.interactor.TelegramInteractor
 import com.io.interactor.TelegramInteractorImpl
-import com.io.repository.MessageRepository
-import com.io.repository.impl.MessageRepositoryImpl
-import com.io.service.SectionCache
-import com.io.service.TaskCache
-import com.io.service.UserService
-import com.io.service.impl.SectionCacheImpl
-import com.io.service.impl.TaskCacheImpl
-import com.io.service.impl.UserServiceImpl
-import com.io.telegram.TelegramBot
+import com.io.cache.MessageCache
+import com.io.cache.impl.MessageCacheImpl
+import com.io.cache.SectionCache
+import com.io.cache.TaskCache
+import com.io.cache.UserCache
+import com.io.cache.impl.SectionCacheImpl
+import com.io.cache.impl.TaskCacheImpl
+import com.io.cache.impl.UserCacheImpl
+import com.io.telegram.*
 import com.io.telegram.TelegramBotFacade
-import com.io.telegram.TelegramMethod
+import com.io.telegram.TelegramMessageHandlerImpl
 import org.koin.dsl.module
 
 fun botModule(
@@ -31,10 +31,11 @@ fun botModule(
 
     factory { TelegramBotFacade(get(), get(), get()) }
     factory { TelegramMethod(botToken, isDebug) }
+    factory<TelegramMessageHandler> { TelegramMessageHandlerImpl() }
 }
 
 val serviceModule = module {
-    factory<UserService> { UserServiceImpl(get()) }
+    factory<UserCache> { UserCacheImpl(get()) }
     factory<TaskCache> { TaskCacheImpl() }
     factory<SectionCache> { SectionCacheImpl() }
 }
@@ -44,5 +45,5 @@ val interactorModule = module {
 }
 
 val repositoryTestModule = module {
-    factory<MessageRepository> { MessageRepositoryImpl() }
+    factory<MessageCache> { MessageCacheImpl() }
 }

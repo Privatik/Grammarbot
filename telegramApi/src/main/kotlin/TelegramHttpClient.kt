@@ -30,6 +30,31 @@ class TelegramHttpClient(
         }
     }
 
+    suspend fun getResponseWithoutResult(
+        request: TelegramRequest,
+        params: Map<String, Any>
+    ): EmptyResponse = withContext(Dispatchers.IO){
+        client.get<HttpResponse>("$basePath/${request.path}") {
+            params.forEach {
+                parameter(it.key, it.value)
+            }
+        }
+        return@withContext EmptyResponse
+    }
+
+    suspend fun getResponse(
+        request: TelegramRequest,
+        params: Map<String, Any>
+    ): Deferred<String> = withContext(Dispatchers.IO){
+        return@withContext async {
+            client.get<String>("$basePath/${request.path}") {
+                params.forEach {
+                    parameter(it.key, it.value)
+                }
+            }
+        }
+    }
+
     suspend fun sendMessageFromBehavior(
         telegramBehaviour: TelegramBehaviour
     ): Deferred<TelegramResponse<MessageIdResponse>> = withContext(Dispatchers.IO) {
@@ -89,5 +114,7 @@ class TelegramHttpClient(
     data class MessageIdResponse(
         val message_id: Int
     )
+
+    object EmptyResponse
     
 }

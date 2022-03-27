@@ -1,8 +1,7 @@
 package com.io.interactor
 
-import com.io.model.MessageGroup
-import com.io.repository.MessageRepository
-import com.io.service.entity.MessageEntity
+import com.io.cache.MessageCache
+import com.io.cache.entity.MessageEntity
 
 interface TelegramInteractor {
 
@@ -12,7 +11,7 @@ interface TelegramInteractor {
 }
 
 class TelegramInteractorImpl(
-    private val messageRepository: MessageRepository
+    private val messageCache: MessageCache
 ): TelegramInteractor {
 
     override fun saveMessage(chaId: String, messageIds: List<Int>): Boolean {

@@ -21,7 +21,7 @@ internal interface TelegramMessageHandler {
         sealed class BehaviorForMessages {
             object Save: BehaviorForMessages()
             object Delete: BehaviorForMessages()
-            object Translate: BehaviorForMessages()
+            object None: BehaviorForMessages()
         }
     }
 }
@@ -94,8 +94,12 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
             }
         }
 
-        handleCallbackQueryMessage(callbackQuery, messageIds)?.let {
-            return it
+        handleCallbackQueryMessage(callbackQuery, messageIds)?.let { command ->
+            return TelegramMessageHandler.Result(
+                chatId = callbackQuery.message!!.chat.id,
+                behaviours = command,
+                finishBehavior = TelegramMessageHandler.Result.BehaviorForMessages.Save
+            )
         }
 
         messages.add(
