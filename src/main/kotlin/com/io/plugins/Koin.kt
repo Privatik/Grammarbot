@@ -19,7 +19,6 @@ fun Application.configureKoin() {
                 isDebug = isDebug
             ),
             interactorModule,
-            repositoryTestModule,
             serviceModule
         )
     }

@@ -1,9 +1,16 @@
 # Project exclude paths
-/.gradle/
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-/build
+.gradle/
+
+*.iws
+/out/
+
+.idea/gradle.xml
+.idea/libraries
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+
+.idea/mongoSettings.xml
+.build

@@ -1,7 +1,7 @@
 package com.io.telegram
 
-import com.io.CommandConst
-import com.io.StartMessage
+import com.io.resourse.CommandConst
+import com.io.resourse.StartMessage
 import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.resourse.translateKeyboardMarkup

@@ -1,7 +1,5 @@
 package com.io.resourse
 
-import com.io.ChoiceLessonMessage
-import com.io.TranslateMessage
 import com.io.model.Language
 
 data class KeyboardMarkup(

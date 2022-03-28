@@ -35,6 +35,7 @@ fun botModule(
 }
 
 val serviceModule = module {
+    factory<MessageCache> { MessageCacheImpl() }
     factory<UserCache> { UserCacheImpl(get()) }
     factory<TaskCache> { TaskCacheImpl() }
     factory<SectionCache> { SectionCacheImpl() }
@@ -42,8 +43,4 @@ val serviceModule = module {
 
 val interactorModule = module {
     factory<TelegramInteractor> { TelegramInteractorImpl(get()) }
-}
-
-val repositoryTestModule = module {
-    factory<MessageCache> { MessageCacheImpl() }
 }

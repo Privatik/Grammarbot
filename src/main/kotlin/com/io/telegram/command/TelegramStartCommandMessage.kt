@@ -1,7 +1,7 @@
 package com.io.telegram.command
 
-import com.io.ChoiceLessonMessage
-import com.io.StartMessage
+import com.io.resourse.ChoiceLessonMessage
+import com.io.resourse.StartMessage
 import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.telegram.TelegramBehaviour
