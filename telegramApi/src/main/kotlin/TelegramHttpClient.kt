@@ -10,10 +10,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 class TelegramHttpClient(
     botToken: String,
-    isDebug: Boolean
+    isDebug: Boolean,
+    jsonSetting: Json
 ) {
     private val basePath = "https://api.telegram.org/bot${botToken}"
     private val client = HttpClient(CIO){
@@ -24,9 +26,7 @@ class TelegramHttpClient(
             }
         }
         install(JsonFeature){
-            serializer = KotlinxSerializer(
-                kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            )
+            serializer = KotlinxSerializer(jsonSetting)
         }
     }
 
@@ -65,7 +65,7 @@ class TelegramHttpClient(
                 telegramBehaviour.delay
             )
             is TelegramBehaviour.UpdateBehaviour -> requestAsDeferred(
-                this, 
+                this,
                 telegramBehaviour.body,
                 telegramBehaviour.editMessageTextRequest, 
                 telegramBehaviour.delay,
@@ -75,7 +75,7 @@ class TelegramHttpClient(
     }
 
     private suspend inline fun <reified T: Any> requestAsDeferred(
-        coroutineScope: CoroutineScope, 
+        coroutineScope: CoroutineScope,
         body: TelegramRequest,
         time: Long = 0
     ): Deferred<TelegramResponse<T>>  {
@@ -99,7 +99,7 @@ class TelegramHttpClient(
         val res = requestAsDeferred<MessageIdResponse>(coroutineScope, bodyBefore, startTime).await()
         delay(startTime + nextTime)
 
-        requestAsDeferred<HttpResponse>(coroutineScope, bodyAfter.copy(message_id = res.result.message_id)).await()
+        requestAsDeferred<MessageIdResponse>(coroutineScope, bodyAfter.copy(message_id = res.result.message_id)).await()
         
         return coroutineScope.async { res }
     }

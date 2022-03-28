@@ -29,7 +29,7 @@ fun botModule(
         )
     }
 
-    factory { TelegramBotFacade(get(), get(), get()) }
+    factory { TelegramBotFacade(get(), get()) }
     factory { TelegramMethod(botToken, isDebug) }
     factory<TelegramMessageHandler> { TelegramMessageHandlerImpl() }
 }
@@ -42,5 +42,5 @@ val serviceModule = module {
 }
 
 val interactorModule = module {
-    factory<TelegramInteractor> { TelegramInteractorImpl(get()) }
+    factory<TelegramInteractor> { TelegramInteractorImpl(get(), get()) }
 }

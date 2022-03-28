@@ -2,34 +2,45 @@ package com.io.telegram
 
 import com.io.interactor.TelegramInteractor
 import com.io.model.MessageGroup
-import com.io.cache.UserCache
+import com.io.cache.entity.UserEntity
 
 internal class TelegramBotFacade(
-    private val userCache: UserCache,
     private val telegramInteractor: TelegramInteractor,
     private val telegramMessageHandler: TelegramMessageHandler
 ) {
 
     suspend fun handleUpdate(update: Update): TelegramResult? {
+        val currentUser: UserEntity?
         if (update.hasCallbackQuery()){
+            currentUser = telegramInteractor.getOrSaveNewUser(update.callback_query!!.message!!.chat.id)
             val messageIds = telegramInteractor.getMessage(update.callback_query!!.message!!.chat.id) {
-                group == MessageGroup.START || group == MessageGroup.CHOICE_SECTION
+                it.group == MessageGroup.START.name || it.group == MessageGroup.CHOICE_SECTION.name
             }
-            return telegramMessageHandler.handleCallbackQuery(update.callback_query!!, messageIds)?.asTelegramResult()
+            return telegramMessageHandler.handleCallbackQuery(currentUser, update.callback_query!!, messageIds)?.asTelegramResult()
         }
 
         if (update.hasMessage() && update.message!!.hasText()){
-            return telegramMessageHandler.handleMessage(update.message!!)?.asTelegramResult()
+            currentUser = telegramInteractor.getOrSaveNewUser(update.message!!.chat.id)
+            return telegramMessageHandler.handleMessage(currentUser, update.message!!)?.asTelegramResult()
         }
 
         return null
     }
 
     private suspend fun TelegramMessageHandler.Result.asTelegramResult(): TelegramResult{
-        val method: suspend (messageIds: List<Int>) -> Unit = when (finishBehavior){
+        val method: suspend (messageIds: List<Pair<String,Int>>) -> Unit = when (finishBehaviorMessage){
             TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(chatId)
-            TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Int> -> }
-            TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : List<Int> -> }
+            TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Pair<String,Int>> -> }
+            TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : List<Pair<String,Int>> -> }
+        }
+
+        when (finishBehaviorUser){
+            is TelegramMessageHandler.Result.BehaviorForUser.Update -> { telegramInteractor.updateUser(
+                chatId = chatId,
+                language = finishBehaviorUser.language,
+                state = finishBehaviorUser.state
+            )}
+            is TelegramMessageHandler.Result.BehaviorForUser.None -> Unit
         }
 
         return TelegramResult(
@@ -38,7 +49,7 @@ internal class TelegramBotFacade(
         )
     }
 
-    private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
+    private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Pair<String,Int>>) -> Unit) {
         return {
             telegramInteractor.saveMessage(chatId, it)
         }

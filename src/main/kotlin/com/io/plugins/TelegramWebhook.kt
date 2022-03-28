@@ -1,5 +1,6 @@
 package com.io.plugins
 
+import com.io.telegram.TelegramHttpClient
 import com.io.telegram.TelegramMethod
 import com.io.telegram.TelegramRequest
 import com.io.telegram.WebhookInfo
@@ -23,13 +24,12 @@ fun Application.configureTelegramWebhook() {
             serializer = WebhookInfo.serializer()
         )
 
-        println("${response.url} == $webHookPath")
-//        if (response.url != webHookPath){
-//            method.get<TelegramHttpClient.EmptyResponse>(
-//                request = TelegramRequest.SetWebhookRequest,
-//                params = mapOf<String, Any>("url" to webHookPath),
-//                isGetResult = false)
-//        }
+        if (response.url != webHookPath){
+            method.get<TelegramHttpClient.EmptyResponse>(
+                request = TelegramRequest.SetWebhookRequest,
+                params = mapOf<String, Any>("url" to webHookPath)
+            )
+        }
         scope.cancel()
     }
 

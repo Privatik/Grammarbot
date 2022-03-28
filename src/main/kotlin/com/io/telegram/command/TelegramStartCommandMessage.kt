@@ -8,6 +8,7 @@ import com.io.telegram.TelegramBehaviour
 import com.io.telegram.editMessageText
 import com.io.telegram.sendMessage
 import com.io.util.inlineKeyBoardMarkup
+import com.io.util.replyKeyBoardMarkup
 
 fun sendStartMessage(
     chatId: String,
@@ -16,10 +17,6 @@ fun sendStartMessage(
     val startMessage = sendMessage(
         chat_id = chatId,
         text = StartMessage.get(language),
-        replyMarkup = inlineKeyBoardMarkup(
-            language,
-            isTranslateButton = true
-        )
     )
 
     val choiceLessonMessage = sendMessage(
@@ -31,21 +28,31 @@ fun sendStartMessage(
         )
     )
 
+    val updateStartMessage = editMessageText(
+        chat_id = chatId,
+        text = StartMessage.get(language),
+        messageId = 0,
+        replyMarkup = inlineKeyBoardMarkup(
+            language,
+            isTranslateButton = true
+        )
+    )
+
     return listOf(
-        startMessage.asSendBehaviour(MessageGroup.START::class.java.name),
-        choiceLessonMessage.asSendBehaviour(MessageGroup.CHOICE_SECTION::class.java.name,2000)
+        startMessage.asUpdateBehaviour(MessageGroup.START.name, updateStartMessage, 0, 2000),
+        choiceLessonMessage.asSendBehaviour(MessageGroup.CHOICE_SECTION.name)
     )
 }
 
 fun editStartMessage(
     chatId: String,
-    messageIds: Map<String, Int>,
+    messageIds: Map<String, List<Int>>,
     language: Language
 ): List<TelegramBehaviour>{
     val startMessage = editMessageText(
         chat_id = chatId,
         text = StartMessage.get(language),
-        messageId = messageIds[MessageGroup.START::class.java.name]!!,
+        messageId = messageIds[MessageGroup.START.name]!!.first(),
         replyMarkup = inlineKeyBoardMarkup(
             language,
             isTranslateButton = true
@@ -55,7 +62,7 @@ fun editStartMessage(
     val choiceLessonMessage = editMessageText(
         chat_id = chatId,
         text = ChoiceLessonMessage.get(language),
-        messageId = messageIds[MessageGroup.CHOICE_SECTION::class.java.name]!!,
+        messageId = messageIds[MessageGroup.CHOICE_SECTION.name]!!.first(),
         replyMarkup = inlineKeyBoardMarkup(
             language,
             isSectionButtons = true
@@ -63,7 +70,7 @@ fun editStartMessage(
     )
 
     return listOf(
-        startMessage.asSendBehaviour(MessageGroup.START::class.java.name),
-        choiceLessonMessage.asSendBehaviour(MessageGroup.CHOICE_SECTION::class.java.name)
+        startMessage.asSendBehaviour(MessageGroup.START.name),
+        choiceLessonMessage.asSendBehaviour(MessageGroup.CHOICE_SECTION.name)
     )
 }

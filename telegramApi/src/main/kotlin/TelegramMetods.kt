@@ -44,9 +44,10 @@ sealed class TelegramRequest(val path: String){
         fun asUpdateBehaviour(
             name: String,
             editMessageTextRequest: EditMessageTextRequest,
-            delay: Long = 0
+            delay: Long = 0,
+            nextDelay: Long = 0
         ): TelegramBehaviour.UpdateBehaviour =
-            TelegramBehaviour.UpdateBehaviour(name,this, editMessageTextRequest, delay)
+            TelegramBehaviour.UpdateBehaviour(name,this, editMessageTextRequest, delay, nextDelay)
                 
     }
 
@@ -74,20 +75,26 @@ class TelegramMethod(
     botToken: String,
     isDebug: Boolean
 ) {
-    private val client = TelegramHttpClient(botToken, isDebug)
+    private val jsonSetting = Json { ignoreUnknownKeys = true }
+    private val client = TelegramHttpClient(botToken, isDebug, jsonSetting)
 
     suspend fun <T> get(
         request: TelegramRequest,
         params: Map<String, Any> = mapOf(),
-        isGetResult: Boolean = true,
-        serializer: KSerializer<T>
+        serializer: KSerializer<T>? = null
     ): T {
+        if (serializer == null){
+            @Suppress("UNCHECKED_CAST")
+            return client.getResponseWithoutResult(request, params) as T
+        }
         val json = client.getResponse(request, params).await()
-        return Json { ignoreUnknownKeys = true }.decodeFromString(TelegramHttpClient.TelegramResponse.serializer(serializer), json).result
+        return jsonSetting.decodeFromString(TelegramHttpClient.TelegramResponse.serializer(serializer), json).result
     }
 
-    suspend fun execute(bodies: List<TelegramBehaviour>): List<Int> {
-        return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().map { it.result.message_id }
+    suspend fun execute(bodies: List<TelegramBehaviour>): List<Pair<String, Int>> {
+        return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().mapIndexed { index, telegramResponse ->
+            bodies[index].name to telegramResponse.result.message_id
+        }
     }
     
 }

@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.launch
 import org.koin.ktor.ext.inject
 
 
@@ -20,8 +21,8 @@ fun Application.configureRouting() {
                 return@post
             }
 
-            telegramBot.onWebhookUpdateReceived(update)
             call.respond(HttpStatusCode.OK)
+            telegramBot.onWebhookUpdateReceived(update)
         }
     }
 }
