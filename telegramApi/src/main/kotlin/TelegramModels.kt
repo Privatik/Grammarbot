@@ -1,5 +1,6 @@
 package com.io.telegram
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 sealed class TelegramModel
@@ -8,7 +9,8 @@ sealed class InputMessageContent : TelegramModel()
 sealed class InlineQueryResult : TelegramModel()
 sealed class PassportElementError : TelegramModel()
 
-interface ReplyKeyboard
+@Serializable
+sealed class ReplyKeyboard: TelegramModel()
 
 @Serializable
 data class Update(
@@ -44,7 +46,7 @@ data class WebhookInfo(
 @Serializable
 data class User(
     val id: String,
-    val is_bot: Boolean,
+    val is_bot: Boolean = false,
     val first_name: String,
     val last_name: String? = null,
     val username: String? = null,
@@ -72,7 +74,7 @@ data class Chat(
 data class Message(
     val message_id: Int,
     val from: User? = null,
-    val date: Int,
+    val date: Long,
     val chat: Chat,
     val forward_from: User? = null,
     val forward_from_chat: Chat? = null,
@@ -258,7 +260,7 @@ data class ReplyKeyboardMarkup(
     val resize_keyboard: Boolean? = null,
     val one_time_keyboard: Boolean? = null,
     val selective: Boolean? = null
-) : TelegramModel()
+) : ReplyKeyboard()
 
 
 @Serializable
@@ -273,13 +275,13 @@ data class KeyboardButton(
 data class ReplyKeyboardRemove(
     val remove_keyboard: Boolean,
     val selective: Boolean? = null
-) : TelegramModel(), ReplyKeyboard
+) : ReplyKeyboard()
 
 
 @Serializable
 data class InlineKeyboardMarkup(
     val inline_keyboard: List<List<InlineKeyboardButton>>
-) : TelegramModel(), ReplyKeyboard
+) : ReplyKeyboard()
 
 
 @Serializable

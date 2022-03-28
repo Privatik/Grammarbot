@@ -1,6 +1,5 @@
 package com.io.telegram
 
-import com.io.util.executeAsyncMessage
 import org.koin.java.KoinJavaComponent.inject
 import org.telegram.telegrambots.bots.TelegramWebhookBot
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
@@ -19,8 +18,9 @@ class TelegramBot(
     override fun getBotUsername(): String = botName
 
     suspend fun onWebhookUpdateReceived(update: com.io.telegram.Update) {
-        facade.handleUpdate(update)?.also {
-            method.execute(it)
+        facade.handleUpdate(update)?.also { result ->
+            val messagesIds = method.execute(result.behaviours)
+            result.doFinish(messagesIds)
         }
     }
 

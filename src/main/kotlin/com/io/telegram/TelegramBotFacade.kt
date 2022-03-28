@@ -1,54 +1,46 @@
 package com.io.telegram
 
-import com.io.resourse.translateKeyboardMarkup
-import com.io.util.keyBoardMarkup
-import com.io.CommandConst
-import com.io.StartMessage
+import com.io.interactor.TelegramInteractor
+import com.io.model.MessageGroup
+import com.io.cache.UserCache
 
-class TelegramBotFacade {
+internal class TelegramBotFacade(
+    private val userCache: UserCache,
+    private val telegramInteractor: TelegramInteractor,
+    private val telegramMessageHandler: TelegramMessageHandler
+) {
 
-    private var currentLanguage = com.io.Message.Language.EN
-
-    suspend fun handleUpdate(update: Update): TelegramRequest?{
+    suspend fun handleUpdate(update: Update): TelegramResult? {
         if (update.hasCallbackQuery()){
-            return handleCallbackQuery(update.callback_query!!)
+            val messageIds = telegramInteractor.getMessage(update.callback_query!!.message!!.chat.id) {
+                group == MessageGroup.START || group == MessageGroup.CHOICE_SECTION
+            }
+            return telegramMessageHandler.handleCallbackQuery(update.callback_query!!, messageIds)?.asTelegramResult()
         }
 
         if (update.hasMessage() && update.message!!.hasText()){
-            return handleMessage(update.message!!)
+            return telegramMessageHandler.handleMessage(update.message!!)?.asTelegramResult()
         }
+
         return null
     }
 
-    private suspend fun handleMessage(message: Message): TelegramRequest.SendMessageRequest{
-        val replyMessage = when (message.text){
-            CommandConst.START -> StartMessage.get(currentLanguage)
-            else -> "Hi ${message.text}"
+    private suspend fun TelegramMessageHandler.Result.asTelegramResult(): TelegramResult{
+        val method: suspend (messageIds: List<Int>) -> Unit = when (finishBehavior){
+            TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(chatId)
+            TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Int> -> }
+            TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : List<Int> -> }
         }
 
-        val replyMarkup = if (message.text == CommandConst.START) keyBoardMarkup() else null
-
-        return sendMessage(
-            chat_id = message.chat.id,
-            text = replyMessage,
-            replyMarkup = replyMarkup
+        return TelegramResult(
+            behaviours = behaviours,
+            doFinish = method
         )
     }
 
-    private suspend fun handleCallbackQuery(callbackQuery: CallbackQuery): TelegramRequest.EditMessageTextRequest{
-        if (callbackQuery.data == translateKeyboardMarkup.callbackData){
-                currentLanguage = if (currentLanguage == com.io.Message.Language.EN){
-                    com.io.Message.Language.RU
-                } else {
-                    com.io.Message.Language.EN
-                }
-            }
-
-        return editMessageText(
-            chat_id = callbackQuery.message!!.chat.id,
-            text = StartMessage.get(currentLanguage),
-            messageId = callbackQuery.message!!.message_id,
-            replyMarkup = keyBoardMarkup()
-        )
+    private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Int>) -> Unit) {
+        return {
+            telegramInteractor.saveMessage(chatId, it)
+        }
     }
 }

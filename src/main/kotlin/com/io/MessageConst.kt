@@ -1,13 +1,10 @@
 package com.io
 
+import com.io.model.Language
+
 interface Message{
     val ru: String
     val en: String
-
-    enum class Language{
-        RU,
-        EN
-    }
 
     fun get(language: Language):String{
         return when (language){
@@ -23,4 +20,20 @@ object StartMessage: Message {
 
     override val en: String
         get() = "This bot for learning grammar"
+}
+
+object TranslateMessage: Message {
+    override val ru: String
+        get() = "Перевести"
+
+    override val en: String
+        get() = "Translate"
+}
+
+object ChoiceLessonMessage: Message {
+    override val ru: String
+        get() = "Выберите урок"
+    override val en: String
+        get() = "Choice lesson"
+
 }
