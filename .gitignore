@@ -1,6 +1,5 @@
 # Project exclude paths
 *.iws
-/out/
 
 /.idea/gradle.xml
 /.idea/libraries
