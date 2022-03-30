@@ -68,7 +68,13 @@ sealed class TelegramRequest(val path: String){
     data class DeleteMessageRequest(
         val chat_id: String,
         val message_id: Int
-    ) : TelegramRequest("deleteMessage")
+    ) : TelegramRequest("deleteMessage") {
+        fun asDeleteBehaviour(
+            name: String,
+            delay: Long = 0
+        ): TelegramBehaviour.Delete =
+            TelegramBehaviour.Delete(name,this, message_id, delay)
+    }
 }
 
 class TelegramMethod(

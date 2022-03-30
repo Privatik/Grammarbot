@@ -16,7 +16,7 @@ interface TelegramInteractor {
 
     suspend fun saveMessage(chaId: String, messageIds: List<Pair<String, Int>>): Boolean
 
-    suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ):Map<String, List<Int>>
+    suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ): Map<String, List<Int>>
 }
 
 class TelegramInteractorImpl(

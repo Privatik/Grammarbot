@@ -12,7 +12,11 @@ import com.io.util.extends.anotherLanguage
 import com.io.util.inlineKeyBoardMarkup
 
 internal interface TelegramMessageHandler {
-    suspend fun handleMessage(user: UserEntity, message: Message): Result?
+    suspend fun handleMessage(
+        user: UserEntity,
+        message: Message,
+        messageIds: Map<String,List<Int>> = emptyMap()
+    ): Result?
     suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
@@ -43,8 +47,12 @@ internal interface TelegramMessageHandler {
 
 internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
 
-    override suspend fun handleMessage(user: UserEntity, message: Message): TelegramMessageHandler.Result?{
-        handleCommandMessage(message, user)?.let { result ->
+    override suspend fun handleMessage(
+        user: UserEntity,
+        message: Message,
+        messageIds: Map<String, List<Int>>
+    ): TelegramMessageHandler.Result? {
+        handleCommandMessage(message, user, messageIds)?.let { result ->
             return result
         }
 
@@ -62,12 +70,12 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         return null
     }
 
-    private fun handleCommandMessage(message: Message, user: UserEntity): TelegramMessageHandler.Result? {
+    private fun handleCommandMessage(message: Message, user: UserEntity, messageIds: Map<String,List<Int>>): TelegramMessageHandler.Result? {
         return when (message.text){
             CommandConst.START -> {
                 TelegramMessageHandler.Result(
                     chatId = message.chat.id,
-                    behaviours = sendStartMessage(message.chat.id, user.currentLanguage),
+                    behaviours = sendStartMessage(message.chat.id,  messageIds, user.currentLanguage),
                     finishBehaviorUser = TelegramMessageHandler.Result.BehaviorForUser.None,
                     finishBehaviorMessage = TelegramMessageHandler.Result.BehaviorForMessages.Save
                 )

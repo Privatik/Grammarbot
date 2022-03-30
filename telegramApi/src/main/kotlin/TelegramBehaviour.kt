@@ -9,9 +9,16 @@ sealed class TelegramBehaviour(val name: String){
 
     data class UpdateBehaviour(
         val cName: String,
-        val body: TelegramRequest,
+        val request: TelegramRequest,
         val editMessageTextRequest: TelegramRequest.EditMessageTextRequest,
         val delay: Long = 0,
         val nextDelay: Long = 0
     ): TelegramBehaviour(cName)
+
+    data class Delete(
+        val cName: String,
+        val request: TelegramRequest,
+        val deleteMessageId: Int,
+        val delay: Long = 0
+    ) : TelegramBehaviour(cName)
 }

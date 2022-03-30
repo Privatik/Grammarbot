@@ -21,7 +21,10 @@ internal class TelegramBotFacade(
 
         if (update.hasMessage() && update.message!!.hasText()){
             currentUser = telegramInteractor.getOrSaveNewUser(update.message!!.chat.id)
-            return telegramMessageHandler.handleMessage(currentUser, update.message!!)?.asTelegramResult()
+            val messageIds = telegramInteractor.getMessage(update.message!!.chat.id) {
+                it.group == MessageGroup.START.name || it.group == MessageGroup.CHOICE_SECTION.name
+            }
+            return telegramMessageHandler.handleMessage(currentUser, update.message!!, messageIds)?.asTelegramResult()
         }
 
         return null

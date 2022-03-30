@@ -66,12 +66,34 @@ class TelegramHttpClient(
             )
             is TelegramBehaviour.UpdateBehaviour -> requestAsDeferred(
                 this,
-                telegramBehaviour.body,
+                telegramBehaviour.request,
                 telegramBehaviour.editMessageTextRequest, 
                 telegramBehaviour.delay,
                 telegramBehaviour.nextDelay
             )
+            is TelegramBehaviour.Delete -> deteleAsDeferred(
+                this,
+                telegramBehaviour.request,
+                telegramBehaviour.deleteMessageId,
+                telegramBehaviour.delay
+            )
         }
+    }
+
+    private suspend inline fun deteleAsDeferred(
+        coroutineScope: CoroutineScope,
+        body: TelegramRequest,
+        deleteMessageid: Int,
+        time: Long = 0
+    ): Deferred<TelegramResponse<MessageIdResponse>>  {
+        delay(time)
+        coroutineScope.launch {
+            client.post<HttpResponse>("$basePath/${body.path}") {
+                this.body = body
+                contentType(ContentType.Application.Json)
+            }
+        }
+        return coroutineScope.async { TelegramResponse(ok = true, result = MessageIdResponse(message_id = deleteMessageid)) }
     }
 
     private suspend inline fun <reified T: Any> requestAsDeferred(
