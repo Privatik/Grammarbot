@@ -1,6 +1,6 @@
 package com.io.telegram
 
 data class TelegramResult(
-    val behaviours: List<TelegramBehaviour>,
-    val doFinish: suspend (messageIds: List<Pair<String,Int>>) -> Unit
+    val behaviour: TelegramBehaviour,
+    val doFinish: suspend (messageIds: Pair<String,Int>) -> Unit
 )

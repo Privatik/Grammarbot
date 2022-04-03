@@ -24,35 +24,39 @@ internal class TelegramBotFacade(
             val messageIds = telegramInteractor.getMessage(update.message!!.chat.id) {
                 it.group == MessageGroup.START.name || it.group == MessageGroup.CHOICE_SECTION.name
             }
-            return telegramMessageHandler.handleMessage(currentUser, update.message!!, messageIds)?.asTelegramResult()
+            return telegramMessageHandler.handleMessage(currentUser, update.message!!, messageIds)?.asTelegramResults()
         }
 
         return null
     }
 
-    private suspend fun TelegramMessageHandler.Result.asTelegramResult(): TelegramResult{
-        val method: suspend (messageIds: List<Pair<String,Int>>) -> Unit = when (finishBehaviorMessage){
-            TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(chatId)
-            TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : List<Pair<String,Int>> -> }
-            TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : List<Pair<String,Int>> -> }
-        }
+    private suspend fun List<TelegramMessageHandler.Result>.asTelegramResults(): List<TelegramResult>{
+        return map { result ->
+            val method: suspend (messageIds: Pair<String,Int>) -> Unit = when (result.finishBehaviorMessage){
+                TelegramMessageHandler.Result.BehaviorForMessages.Save -> saveMessage(result.chatId)
+                TelegramMessageHandler.Result.BehaviorForMessages.Delete -> { _ : Pair<String,Int> -> }
+                TelegramMessageHandler.Result.BehaviorForMessages.None -> { _ : Pair<String,Int> -> }
+            }
 
-        when (finishBehaviorUser){
-            is TelegramMessageHandler.Result.BehaviorForUser.Update -> { telegramInteractor.updateUser(
-                chatId = chatId,
-                language = finishBehaviorUser.language,
-                state = finishBehaviorUser.state
-            )}
-            is TelegramMessageHandler.Result.BehaviorForUser.None -> Unit
-        }
+            when (result.finishBehaviorUser){
+                is TelegramMessageHandler.Result.BehaviorForUser.Update -> {
+                    telegramInteractor.updateUser(
+                        chatId = result.chatId,
+                        language = result.finishBehaviorUser.language,
+                        state = result.finishBehaviorUser.state
+                    )
+                }
+                is TelegramMessageHandler.Result.BehaviorForUser.None -> Unit
+            }
 
-        return TelegramResult(
-            behaviours = behaviours,
-            doFinish = method
-        )
+            TelegramResult(
+                behaviour = result.behaviour,
+                doFinish = method
+            )
+        }
     }
 
-    private suspend fun saveMessage(chatId: String): (suspend (messageIds: List<Pair<String,Int>>) -> Unit) {
+    private suspend fun saveMessage(chatId: String): (suspend (messageIds: Pair<String,Int>) -> Unit) {
         return {
             telegramInteractor.saveMessage(chatId, it)
         }

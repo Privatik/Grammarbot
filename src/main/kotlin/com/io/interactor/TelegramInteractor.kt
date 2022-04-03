@@ -5,7 +5,6 @@ import com.io.cache.UserCache
 import com.io.cache.entity.MessageEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
-import com.io.model.MessageGroup
 import com.io.model.UserState
 
 interface TelegramInteractor {
@@ -14,7 +13,7 @@ interface TelegramInteractor {
 
     suspend fun updateUser(chatId: String, language: Language? = null, state: UserState? = null): UserEntity
 
-    suspend fun saveMessage(chaId: String, messageIds: List<Pair<String, Int>>): Boolean
+    suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean
 
     suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ): Map<String, List<Int>>
 }
@@ -34,8 +33,8 @@ class TelegramInteractorImpl(
         return userCache.updateStateUser(chatId, language, state)
     }
 
-    override suspend fun saveMessage(chaId: String, messageIds: List<Pair<String, Int>>): Boolean {
-        return messageCache.saveMessageIds(chaId, messageIds)
+    override suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean {
+        return messageCache.saveMessageId(chaId, messageIds)
     }
 
     override suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean): Map<String, List<Int>> {

@@ -25,7 +25,7 @@ internal interface TelegramMessageHandler {
 
     data class Result(
         val chatId: String,
-        val behaviours: List<TelegramBehaviour>,
+        val behaviour: TelegramBehaviour,
         val finishBehaviorUser: BehaviorForUser,
         val finishBehaviorMessage: BehaviorForMessages
     ){
@@ -70,33 +70,20 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         return null
     }
 
-    private fun handleCommandMessage(message: Message, user: UserEntity, messageIds: Map<String,List<Int>>): TelegramMessageHandler.Result? {
+    private fun handleCommandMessage(message: Message, user: UserEntity, messageIds: Map<String,List<Int>>): List<TelegramMessageHandler.Result>? {
         return when (message.text){
-            CommandConst.START -> {
-                TelegramMessageHandler.Result(
-                    chatId = message.chat.id,
-                    behaviours = sendStartMessage(message.chat.id,  messageIds, user.currentLanguage),
-                    finishBehaviorUser = TelegramMessageHandler.Result.BehaviorForUser.None,
-                    finishBehaviorMessage = TelegramMessageHandler.Result.BehaviorForMessages.Save
-                )
-            }
+            CommandConst.START -> sendStartMessage(message.chat.id, messageIds, user.currentLanguage)
             else -> null
         }
     }
 
-    private fun handleCallbackQueryMessage(callbackQuery: CallbackQuery, user: UserEntity, messageIds: Map<String, List<Int>>): TelegramMessageHandler.Result? {
+    private fun handleCallbackQueryMessage(callbackQuery: CallbackQuery, user: UserEntity, messageIds: Map<String, List<Int>>): List<TelegramMessageHandler.Result>? {
         return when (callbackQuery.data){
-            translateKeyboardMarkup.callbackData ->
-                TelegramMessageHandler.Result(
-                    chatId = callbackQuery.message!!.chat.id,
-                    behaviours = editStartMessage(
-                        callbackQuery.message!!.chat.id,
-                        messageIds,
-                        user.anotherLanguage()
-                    ),
-                    finishBehaviorUser = TelegramMessageHandler.Result.BehaviorForUser.Update(language = user.anotherLanguage()),
-                    finishBehaviorMessage = TelegramMessageHandler.Result.BehaviorForMessages.Save
-                )
+            translateKeyboardMarkup.callbackData -> editStartMessage(
+                callbackQuery.message!!.chat.id,
+                messageIds,
+                user.anotherLanguage()
+            )
             else -> null
         }
     }

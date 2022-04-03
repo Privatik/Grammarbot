@@ -30,7 +30,7 @@ class MessageCacheImpl: MessageCache {
 
     }
 
-    override suspend fun deleteMessageIds(chatId: String, messages: List<Int>) {
+    override suspend fun deleteMessageId(chatId: String, messages: List<Int>) {
         messages.forEach {
             this.messages.removeIf { it.chatId == chatId }
         }
