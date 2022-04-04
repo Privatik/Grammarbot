@@ -6,3 +6,13 @@ enum class MessageGroup {
     SECTION,
     NONE
 }
+
+fun String.asMessageGroup(): MessageGroup{
+    return when (this){
+        MessageGroup.START.name -> MessageGroup.START
+        MessageGroup.CHOICE_SECTION.name -> MessageGroup.CHOICE_SECTION
+        MessageGroup.SECTION.name -> MessageGroup.SECTION
+        MessageGroup.NONE.name -> MessageGroup.NONE
+        else -> error("Don't find group")
+    }
+}

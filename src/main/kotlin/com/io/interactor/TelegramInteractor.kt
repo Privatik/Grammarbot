@@ -15,6 +15,8 @@ interface TelegramInteractor {
 
     suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean
 
+    suspend fun deleteMessage(chaId: String, messageIds: Pair<String, Int>): Boolean
+
     suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ): Map<String, List<Int>>
 }
 
@@ -35,6 +37,10 @@ class TelegramInteractorImpl(
 
     override suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean {
         return messageCache.saveMessageId(chaId, messageIds)
+    }
+
+    override suspend fun deleteMessage(chaId: String, messageIds: Pair<String, Int>): Boolean {
+        return messageCache.deleteMessageId(chaId, )
     }
 
     override suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean): Map<String, List<Int>> {

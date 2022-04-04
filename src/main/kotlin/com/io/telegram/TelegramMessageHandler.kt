@@ -16,12 +16,12 @@ internal interface TelegramMessageHandler {
         user: UserEntity,
         message: Message,
         messageIds: Map<String,List<Int>> = emptyMap()
-    ): Result?
+    ): List<Result>?
     suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
         messageIds: Map<String,List<Int>>,
-    ): Result?
+    ): List<Result>?
 
     data class Result(
         val chatId: String,
@@ -51,7 +51,7 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         user: UserEntity,
         message: Message,
         messageIds: Map<String, List<Int>>
-    ): TelegramMessageHandler.Result? {
+    ): List<TelegramMessageHandler.Result>? {
         handleCommandMessage(message, user, messageIds)?.let { result ->
             return result
         }
@@ -63,7 +63,7 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         user: UserEntity,
         callbackQuery: CallbackQuery,
         messageIds: Map<String,List<Int>>
-    ): TelegramMessageHandler.Result? {
+    ): List<TelegramMessageHandler.Result>? {
         handleCallbackQueryMessage(callbackQuery, user, messageIds)?.let { result ->
             return result
         }
