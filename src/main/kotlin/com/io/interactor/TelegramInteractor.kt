@@ -5,46 +5,65 @@ import com.io.cache.UserCache
 import com.io.cache.entity.MessageEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
+import com.io.model.MessageGroup
 import com.io.model.UserState
+import com.io.telegram.TelegramMessageHandler
+import java.util.*
 
-interface TelegramInteractor {
+interface TelegramInteractor<Message, User> {
 
-    suspend fun getOrSaveNewUser(chaId: String): UserEntity
+    suspend fun processingMessage(chatId: String, behavior: MessageInteractor.BehaviorForMessages): Message
 
-    suspend fun updateUser(chatId: String, language: Language? = null, state: UserState? = null): UserEntity
+    suspend fun processingUser(chatId: String, behavior: UserInteractor.BehaviorForUser) : User
 
-    suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean
+    suspend fun getMessages(chatId: String, term: (MessageEntity) -> Boolean): List<MessageEntity>
 
-    suspend fun deleteMessage(chaId: String, messageIds: Pair<String, Int>): Boolean
+    suspend fun getMessagesAsMapByMessageGroup(chatId: String, term: (MessageEntity) -> Boolean): Map<MessageGroup, List<Int>>
 
-    suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ): Map<String, List<Int>>
 }
 
 class TelegramInteractorImpl(
-    private val messageCache: MessageCache,
-    private val userCache: UserCache
-): TelegramInteractor {
+    private val messageInteractor: MessageInteractor<(suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?)>,
+    private val userInteractor: UserInteractor<(suspend () -> UserEntity?)>,
+): TelegramInteractor<
+        (suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?),
+        (suspend () -> UserEntity?)
+   > {
 
-    override suspend fun getOrSaveNewUser(chaId: String): UserEntity {
-        val user = userCache.getUser(chaId)
-        if (user != null) return user
-        return userCache.saveUser(chaId)
+    override suspend fun processingMessage(
+        chatId: String,
+        behavior: MessageInteractor.BehaviorForMessages
+    ): suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity? {
+        return when (behavior){
+            is MessageInteractor.BehaviorForMessages.None -> { _ : Pair<Int, MessageGroup> -> null }
+            is MessageInteractor.BehaviorForMessages.Delete -> { _ : Pair<Int, MessageGroup> -> null }
+            is MessageInteractor.BehaviorForMessages.Save -> messageInteractor.saveMessage(chatId)
+        }
     }
 
-    override suspend fun updateUser(chatId: String, language: Language?, state: UserState?): UserEntity {
-        return userCache.updateStateUser(chatId, language, state)
+    override suspend fun processingUser(
+        chatId: String,
+        behavior: UserInteractor.BehaviorForUser
+    ): suspend () -> UserEntity? {
+        return when (behavior){
+            is UserInteractor.BehaviorForUser.None -> { -> null }
+            is UserInteractor.BehaviorForUser.Update -> userInteractor.updateUser(chatId, behavior.language, behavior.state)
+            is UserInteractor.BehaviorForUser.GetOrCreate -> userInteractor.getOrSaveNewUser(chatId)
+        }
     }
 
-    override suspend fun saveMessage(chaId: String, messageIds: Pair<String, Int>): Boolean {
-        return messageCache.saveMessageId(chaId, messageIds)
+    override suspend fun getMessages(
+        chatId: String,
+        term: (MessageEntity) -> Boolean
+    ): List<MessageEntity> {
+        return messageInteractor.getMessage(chatId, term)
     }
 
-    override suspend fun deleteMessage(chaId: String, messageIds: Pair<String, Int>): Boolean {
-        return messageCache.deleteMessageId(chaId, )
-    }
-
-    override suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean): Map<String, List<Int>> {
-        return messageCache.getMessageIds(chaId, term)
+    override suspend fun getMessagesAsMapByMessageGroup(
+        chatId: String,
+        term: (MessageEntity) -> Boolean
+    ): Map<MessageGroup, List<Int>> {
+        return getMessages(chatId, term).groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
     }
 
 }
