@@ -14,13 +14,13 @@ internal interface TelegramMessageHandler {
     suspend fun handleMessage(
         user: UserEntity,
         message: Message,
-        messageIds: suspend (MessageEntity) -> Map<MessageGroup, List<Int>>
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
     ): List<Result>?
 
     suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
-        messageIds: suspend (MessageEntity) -> Map<MessageGroup, List<Int>>,
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>,
     ): List<Result>?
 
     data class Result(
@@ -36,7 +36,7 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
     override suspend fun handleMessage(
         user: UserEntity,
         message: Message,
-        messageIds: suspend (MessageEntity) -> Map<MessageGroup, List<Int>>
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
     ): List<TelegramMessageHandler.Result>? {
         handleCommandMessage(message, user, messageIds)?.let { result ->
             return result
@@ -48,7 +48,7 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
     override suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
-        messageIds: suspend (MessageEntity) -> Map<MessageGroup, List<Int>>
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
     ): List<TelegramMessageHandler.Result>? {
         handleCallbackQueryMessage(callbackQuery, user, messageIds)?.let { result ->
             return result
@@ -56,10 +56,10 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         return null
     }
 
-    private fun handleCommandMessage(
+    private suspend fun handleCommandMessage(
         message: Message,
         user: UserEntity,
-        messageIds: suspend (MessageEntity) -> Map<MessageGroup, List<Int>>
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
     ): List<TelegramMessageHandler.Result>? {
         return when (message.text){
             CommandConst.START -> sendStartMessage(message.chat.id, messageIds, user.currentLanguage)
@@ -67,10 +67,10 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         }
     }
 
-    private fun handleCallbackQueryMessage(
+    private suspend fun handleCallbackQueryMessage(
         callbackQuery: CallbackQuery,
-        user: UserEntity, messageIds:
-        suspend (MessageEntity) -> Map<MessageGroup, List<Int>>
+        user: UserEntity,
+        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
     ): List<TelegramMessageHandler.Result>? {
         return when (callbackQuery.data){
             translateKeyboardMarkup.callbackData -> editStartMessage(

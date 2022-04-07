@@ -10,7 +10,7 @@ interface MessageInteractor<T>{
 
     suspend fun deleteMessage(chaId: String, message: Int): T
 
-    suspend fun getMessage(chaId: String, term: (MessageEntity) -> Boolean ): List<MessageEntity>
+    suspend fun getMessage(chaId: String, term: suspend (MessageEntity) -> Boolean ): List<MessageEntity>
 
     sealed class BehaviorForMessages {
         object Save: BehaviorForMessages()
@@ -41,7 +41,7 @@ class MessageInteractorImpl(
 
     override suspend fun getMessage(
         chaId: String,
-        term: (MessageEntity) -> Boolean
+        term: suspend (MessageEntity) -> Boolean
     ): List<MessageEntity> {
         return messageCache.getMessageIds(chaId, term)
     }

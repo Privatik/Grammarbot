@@ -16,9 +16,9 @@ interface TelegramInteractor<Message, User> {
 
     suspend fun processingUser(chatId: String, behavior: UserInteractor.BehaviorForUser) : User
 
-    suspend fun getMessages(chatId: String, term: (MessageEntity) -> Boolean): List<MessageEntity>
+    suspend fun getMessages(chatId: String, term: suspend (MessageEntity) -> Boolean): List<MessageEntity>
 
-    suspend fun getMessagesAsMapByMessageGroup(chatId: String, term: (MessageEntity) -> Boolean): Map<MessageGroup, List<Int>>
+    suspend fun getMessagesAsMapByMessageGroup(chatId: String): suspend ( suspend (MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
 
 }
 
@@ -54,16 +54,17 @@ class TelegramInteractorImpl(
 
     override suspend fun getMessages(
         chatId: String,
-        term: (MessageEntity) -> Boolean
+        term: suspend (MessageEntity) -> Boolean
     ): List<MessageEntity> {
         return messageInteractor.getMessage(chatId, term)
     }
 
     override suspend fun getMessagesAsMapByMessageGroup(
-        chatId: String,
-        term: (MessageEntity) -> Boolean
-    ): Map<MessageGroup, List<Int>> {
-        return getMessages(chatId, term).groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
+        chatId: String
+    ): suspend (suspend (MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>> {
+        return { term ->
+            getMessages(chatId, term).groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
+        }
     }
 
 }

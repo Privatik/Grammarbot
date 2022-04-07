@@ -8,5 +8,5 @@ interface MessageCache {
 
     suspend fun deleteMessageId(chatId: String, messageId: Int): MessageEntity
 
-    suspend fun getMessageIds(chatId: String, term: (MessageEntity) -> Boolean): List<MessageEntity>
+    suspend fun getMessageIds(chatId: String, term: suspend (MessageEntity) -> Boolean): List<MessageEntity>
 }

@@ -31,7 +31,7 @@ class MessageCacheImpl: MessageCache {
     }
 
 
-    override suspend fun getMessageIds(chatId: String, term: (MessageEntity) -> Boolean): List<MessageEntity> {
+    override suspend fun getMessageIds(chatId: String, term: suspend (MessageEntity) -> Boolean): List<MessageEntity> {
         return messages.filter{ term(it) && it.chatId == chatId }
     }
 }
