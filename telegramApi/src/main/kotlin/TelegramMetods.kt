@@ -97,7 +97,7 @@ class TelegramMethod(
         return jsonSetting.decodeFromString(TelegramHttpClient.TelegramResponse.serializer(serializer), json).result
     }
 
-    suspend fun execute(bodies: List<TelegramBehaviour>): List<Pair<Int, String>> {
+    suspend fun sendMessageByBehaviour(bodies: List<TelegramBehaviour>): List<Pair<Int, String>> {
         return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().mapIndexed { index, telegramResponse ->
             telegramResponse.result.message_id to bodies[index].name
         }

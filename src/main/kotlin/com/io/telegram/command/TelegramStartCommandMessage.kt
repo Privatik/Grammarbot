@@ -7,20 +7,23 @@ import com.io.resourse.StartMessage
 import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.telegram.*
+import com.io.util.GetBooleanViaMessageEntity
+import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
 import com.io.util.extends.anotherLanguage
 import com.io.util.inlineKeyBoardMarkup
 import com.io.util.replyKeyBoardMarkup
 
 internal suspend fun sendStartMessage(
     chatId: String,
-    messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>,
+    messageIds: GetMessageGroupToIntsViaFuncMessageEntity,
     language: Language
 ): List<TelegramMessageHandler.Result>{
     val deleteMessages = mutableListOf<TelegramMessageHandler.Result>()
 
-    val filter: suspend (com.io.cache.entity.MessageEntity) -> Boolean = {
+    val filter: GetBooleanViaMessageEntity = {
         it.group == MessageGroup.START || it.group == MessageGroup.CHOICE_SECTION
     }
+
     messageIds(filter)
         .forEach { ( _, list ) ->
             deleteMessages.addAll(

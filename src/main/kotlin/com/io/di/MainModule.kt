@@ -13,6 +13,8 @@ import com.io.cache.impl.UserCacheImpl
 import com.io.telegram.*
 import com.io.telegram.TelegramBotFacade
 import com.io.telegram.TelegramMessageHandlerImpl
+import com.io.util.GetMessageEntityViaIntToMessageGroup
+import com.io.util.GetUserEntity
 import org.koin.dsl.module
 
 fun botModule(
@@ -42,5 +44,7 @@ val serviceModule = module {
 }
 
 val interactorModule = module {
-    factory<TelegramInteractor> { TelegramInteractorImpl(get(), get()) }
+    factory<TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>> {
+        TelegramInteractorImpl(get(), get())
+    }
 }

@@ -6,27 +6,30 @@ import com.io.interactor.TelegramInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.MessageGroup
 import com.io.model.asMessageGroup
+import com.io.util.*
 
 internal class TelegramBotFacade(
-    private val telegramInteractor: TelegramInteractor<
-            (suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?),
-            (suspend () -> UserEntity?)
-            >,
+    private val telegramInteractor: TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>,
     private val telegramMessageHandler: TelegramMessageHandler
 ) {
 
     suspend fun handleUpdate(update: Update): List<TelegramResult>? {
-        val currentUser: UserEntity?
         if (update.hasCallbackQuery()){
-            currentUser = getUser(update.callback_query!!.message!!.chat.id)
-            val messageIds = telegramInteractor.getMessagesAsMapByMessageGroup(update.callback_query!!.message!!.chat.id)
-            return telegramMessageHandler.handleCallbackQuery(currentUser, update.callback_query!!, messageIds)?.asTelegramResults()
+            val userToIds = telegramInteractor.getUserToMessageIds(update.callback_query!!.message!!.chat.id)
+            return telegramMessageHandler.handleCallbackQuery(
+                userToIds.first,
+                update.callback_query!!,
+                userToIds.second
+            )?.asTelegramResults()
         }
 
         if (update.hasMessage() && update.message!!.hasText()){
-            currentUser = getUser(update.message!!.chat.id)
-            val messageIds = telegramInteractor.getMessagesAsMapByMessageGroup(update.message!!.chat.id)
-            return telegramMessageHandler.handleMessage(currentUser, update.message!!, messageIds)?.asTelegramResults()
+            val userToIds = telegramInteractor.getUserToMessageIds(update.message!!.chat.id)
+            return telegramMessageHandler.handleMessage(
+                userToIds.first,
+                update.message!!,
+                userToIds.second
+            )?.asTelegramResults()
         }
 
         return null
@@ -46,28 +49,5 @@ internal class TelegramBotFacade(
                 }
             )
         }
-    }
-
-    private suspend fun processingCallbackQuery(
-        user: UserEntity,
-        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
-    ): List<TelegramMessageHandler.Result>? {
-        return telegramMessageHandler.handleCallbackQuery(user, update.callback_query!!, messageIds)
-    }
-
-    private suspend fun processingMessage(
-        user: UserEntity,
-        messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
-    ): List<TelegramMessageHandler.Result>? {
-        return telegramMessageHandler.handleCallbackQuery(user, update.callback_query!!, messageIds)
-    }
-
-    private suspend fun getUser(chatId: String): UserEntity{
-        return telegramInteractor.processingUser(chatId, UserInteractor.BehaviorForUser.GetOrCreate)()!!
-    }
-
-    private suspend fun processingUpdate(chatId: String){
-        val currentUser = getUser(chatId)
-        val messageIds = telegramInteractor.getMessagesAsMapByMessageGroup(chatId)
     }
 }

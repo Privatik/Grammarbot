@@ -4,6 +4,7 @@ import com.io.cache.UserCache
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
 import com.io.model.UserState
+import com.io.util.GetUserEntity
 
 interface UserInteractor<T>{
 
@@ -23,16 +24,18 @@ interface UserInteractor<T>{
 
 class UserInteractorImpl(
     private val userCache: UserCache
-): UserInteractor<(suspend () -> UserEntity?)>{
+): UserInteractor<GetUserEntity>{
 
-    override suspend fun getOrSaveNewUser(chaId: String): suspend () -> UserEntity? {
+    override suspend fun getOrSaveNewUser(chaId: String): GetUserEntity {
         return {
-            userCache.saveUser(chaId)
+            userCache.getUser(chaId) ?: userCache.saveUser(chaId)
         }
     }
 
-    override suspend fun updateUser(chatId: String, language: Language?, state: UserState?): suspend () -> UserEntity? {
-        TODO("Not yet implemented")
+    override suspend fun updateUser(chatId: String, language: Language?, state: UserState?): GetUserEntity {
+        return {
+            userCache.updateStateUser(chatId, language, state)
+        }
     }
 
 

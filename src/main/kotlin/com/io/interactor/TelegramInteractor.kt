@@ -8,6 +8,10 @@ import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.model.UserState
 import com.io.telegram.TelegramMessageHandler
+import com.io.util.GetBooleanViaMessageEntity
+import com.io.util.GetMessageEntityViaIntToMessageGroup
+import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
+import com.io.util.GetUserEntity
 import java.util.*
 
 interface TelegramInteractor<Message, User> {
@@ -16,24 +20,21 @@ interface TelegramInteractor<Message, User> {
 
     suspend fun processingUser(chatId: String, behavior: UserInteractor.BehaviorForUser) : User
 
-    suspend fun getMessages(chatId: String, term: suspend (MessageEntity) -> Boolean): List<MessageEntity>
+    suspend fun getMessages(chatId: String, term: GetBooleanViaMessageEntity): List<MessageEntity>
 
-    suspend fun getMessagesAsMapByMessageGroup(chatId: String): suspend ( suspend (MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>
+    suspend fun getMessagesAsMapByMessageGroup(chatId: String): GetMessageGroupToIntsViaFuncMessageEntity
 
 }
 
 class TelegramInteractorImpl(
-    private val messageInteractor: MessageInteractor<(suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?)>,
-    private val userInteractor: UserInteractor<(suspend () -> UserEntity?)>,
-): TelegramInteractor<
-        (suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?),
-        (suspend () -> UserEntity?)
-   > {
+    private val messageInteractor: MessageInteractor<GetMessageEntityViaIntToMessageGroup>,
+    private val userInteractor: UserInteractor<GetUserEntity>,
+): TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity> {
 
     override suspend fun processingMessage(
         chatId: String,
         behavior: MessageInteractor.BehaviorForMessages
-    ): suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity? {
+    ): GetMessageEntityViaIntToMessageGroup {
         return when (behavior){
             is MessageInteractor.BehaviorForMessages.None -> { _ : Pair<Int, MessageGroup> -> null }
             is MessageInteractor.BehaviorForMessages.Delete -> { _ : Pair<Int, MessageGroup> -> null }
@@ -44,7 +45,7 @@ class TelegramInteractorImpl(
     override suspend fun processingUser(
         chatId: String,
         behavior: UserInteractor.BehaviorForUser
-    ): suspend () -> UserEntity? {
+    ): GetUserEntity {
         return when (behavior){
             is UserInteractor.BehaviorForUser.None -> { -> null }
             is UserInteractor.BehaviorForUser.Update -> userInteractor.updateUser(chatId, behavior.language, behavior.state)
@@ -54,14 +55,14 @@ class TelegramInteractorImpl(
 
     override suspend fun getMessages(
         chatId: String,
-        term: suspend (MessageEntity) -> Boolean
+        term: GetBooleanViaMessageEntity
     ): List<MessageEntity> {
         return messageInteractor.getMessage(chatId, term)
     }
 
     override suspend fun getMessagesAsMapByMessageGroup(
         chatId: String
-    ): suspend (suspend (MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>> {
+    ): GetMessageGroupToIntsViaFuncMessageEntity {
         return { term ->
             getMessages(chatId, term).groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
         }
