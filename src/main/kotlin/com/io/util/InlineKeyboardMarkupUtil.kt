@@ -1,6 +1,7 @@
 package com.io.util
 
 import com.io.model.Language
+import com.io.resourse.KeyboardMarkup
 import com.io.resourse.translateKeyboardMarkup
 import com.io.telegram.InlineKeyboardButton
 import com.io.telegram.InlineKeyboardMarkup
@@ -12,7 +13,7 @@ fun inlineKeyBoardMarkup(
 ): InlineKeyboardMarkup? {
     val markupButtons = mutableListOf<List<InlineKeyboardButton>>()
     if (isTranslateButton){
-        markupButtons.add(listOf(keyBoardMarkupTranslate(currentLanguage)))
+        markupButtons.add(listOf(keyBoardMarkupTranslate(currentLanguage, translateKeyboardMarkup)))
     }
     if (isSectionButtons){
         markupButtons.add(keyBoardMarkupSections(currentLanguage))
@@ -33,10 +34,10 @@ private fun keyBoardMarkupSections(currentLanguage: Language): List<InlineKeyboa
     return listOf(button1, button2)
 }
 
-private fun keyBoardMarkupTranslate(currentLanguage: Language): InlineKeyboardButton {
+private fun keyBoardMarkupTranslate(currentLanguage: Language, markup: KeyboardMarkup): InlineKeyboardButton {
     val button = InlineKeyboardButton(
-        text = translateKeyboardMarkup.text(currentLanguage),
-        callback_data = translateKeyboardMarkup.callbackData
+        text = markup.text(currentLanguage),
+        callback_data = markup.callbackData
     )
     return button
 }

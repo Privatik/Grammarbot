@@ -64,13 +64,6 @@ class TelegramHttpClient(
                 telegramBehaviour.request,
                 telegramBehaviour.delay
             )
-            is TelegramBehaviour.UpdateBehaviour -> requestAsDeferred(
-                this,
-                telegramBehaviour.request,
-                telegramBehaviour.editMessageTextRequest, 
-                telegramBehaviour.delay,
-                telegramBehaviour.nextDelay
-            )
             is TelegramBehaviour.Delete -> deteleAsDeferred(
                 this,
                 telegramBehaviour.request,
@@ -109,34 +102,5 @@ class TelegramHttpClient(
             }
         }
     }
-
-
-    private suspend inline fun requestAsDeferred(
-        coroutineScope: CoroutineScope,
-        bodyBefore: TelegramRequest,
-        bodyAfter: TelegramRequest.EditMessageTextRequest,
-        startTime: Long,
-        nextTime: Long
-    ): Deferred<TelegramResponse<MessageIdResponse>> {
-        val res = requestAsDeferred<MessageIdResponse>(coroutineScope, bodyBefore, startTime).await()
-        delay(startTime + nextTime)
-
-        requestAsDeferred<MessageIdResponse>(coroutineScope, bodyAfter.copy(message_id = res.result.message_id)).await()
-        
-        return coroutineScope.async { res }
-    }
-       
-    @Serializable
-    data class TelegramResponse<T>(
-        val ok: Boolean,
-        val result: T
-    )
-    
-    @Serializable
-    data class MessageIdResponse(
-        val message_id: Int
-    )
-
-    object EmptyResponse
     
 }

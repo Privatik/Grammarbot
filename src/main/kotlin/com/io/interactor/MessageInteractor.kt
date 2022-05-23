@@ -3,12 +3,14 @@ package com.io.interactor
 import com.io.cache.MessageCache
 import com.io.cache.entity.MessageEntity
 import com.io.model.MessageGroup
+import com.io.util.GetBooleanViaMessageEntity
+import com.io.util.GetMessageEntityViaIntToMessageGroup
 
 interface MessageInteractor<T>{
 
     suspend fun saveMessage(chatId: String): T
 
-    suspend fun deleteMessage(chaId: String, message: Int): T
+    suspend fun deleteMessage(chaId: String): T
 
     suspend fun getMessage(chaId: String, term: suspend (MessageEntity) -> Boolean ): List<MessageEntity>
 
@@ -22,26 +24,25 @@ interface MessageInteractor<T>{
 
 class MessageInteractorImpl(
     private val messageCache: MessageCache,
-): MessageInteractor<(suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?)> {
+): MessageInteractor<GetMessageEntityViaIntToMessageGroup> {
 
-    override suspend fun saveMessage(chatId: String): (suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?) {
+    override suspend fun saveMessage(chatId: String): GetMessageEntityViaIntToMessageGroup {
         return {
             messageCache.saveMessageId(chatId, it)
         }
     }
 
     override suspend fun deleteMessage(
-        chaId: String,
-        message: Int
-    ): suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity? {
+        chaId: String
+    ): GetMessageEntityViaIntToMessageGroup {
         return {
-            messageCache.deleteMessageId(chaId, message)
+            messageCache.deleteMessageId(chaId, it.first)
         }
     }
 
     override suspend fun getMessage(
         chaId: String,
-        term: suspend (MessageEntity) -> Boolean
+        term: GetBooleanViaMessageEntity
     ): List<MessageEntity> {
         return messageCache.getMessageIds(chaId, term)
     }

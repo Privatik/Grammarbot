@@ -8,7 +8,7 @@ import com.io.model.MessageGroup
 import com.io.model.asMessageGroup
 import com.io.util.*
 
-internal class TelegramBotFacade(
+class TelegramBotFacade(
     private val telegramInteractor: TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>,
     private val telegramMessageHandler: TelegramMessageHandler
 ) {

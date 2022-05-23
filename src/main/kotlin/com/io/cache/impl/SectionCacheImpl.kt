@@ -5,16 +5,21 @@ import com.io.cache.entity.SectionEntity
 import com.io.cache.entity.SectionRuleEntity
 
 class SectionCacheImpl: SectionCache {
+    val sections = listOf<SectionEntity>(
+        SectionEntity(1, "Past Simple"),
+        SectionEntity(2,"Present Simple")
+    )
 
-    override suspend fun saveSection(sectionEntity: SectionEntity): Long {
-        TODO("Not yet implemented")
-    }
+    val sectionRules = listOf<SectionRuleEntity>(
+        SectionRuleEntity(1, "This is rule on english 1", "Это правило на русском 1"),
+        SectionRuleEntity(2,"This is rule on english 2", "Это правило на русском 2")
+    )
 
     override suspend fun getAllSection(): List<SectionEntity> {
-        TODO("Not yet implemented")
+        return sections
     }
 
-    override suspend fun saveRule(sectionRuleEntity: SectionRuleEntity) {
-        TODO("Not yet implemented")
+    override suspend fun getCurrentRules(sectionId: Long): SectionRuleEntity {
+        return sectionRules.find { sectionId == it.id }!!
     }
 }

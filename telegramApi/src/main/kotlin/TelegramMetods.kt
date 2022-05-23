@@ -39,17 +39,7 @@ sealed class TelegramRequest(val path: String){
         val disable_notification: Boolean? = null,
         val reply_to_message_id: Int? = null,
         @Contextual val reply_markup: ReplyKeyboard? = null
-    ) : TelegramRequest("sendMessage") {
-
-        fun asUpdateBehaviour(
-            name: String,
-            editMessageTextRequest: EditMessageTextRequest,
-            delay: Long = 0,
-            nextDelay: Long = 0
-        ): TelegramBehaviour.UpdateBehaviour =
-            TelegramBehaviour.UpdateBehaviour(name,this, editMessageTextRequest, delay, nextDelay)
-                
-    }
+    ) : TelegramRequest("sendMessage")
 
     //Update
     @Serializable
@@ -94,7 +84,7 @@ class TelegramMethod(
             return client.getResponseWithoutResult(request, params) as T
         }
         val json = client.getResponse(request, params).await()
-        return jsonSetting.decodeFromString(TelegramHttpClient.TelegramResponse.serializer(serializer), json).result
+        return jsonSetting.decodeFromString(TelegramResponse.serializer(serializer), json).result
     }
 
     suspend fun sendMessageByBehaviour(bodies: List<TelegramBehaviour>): List<Pair<Int, String>> {

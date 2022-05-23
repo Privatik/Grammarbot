@@ -95,7 +95,7 @@ internal suspend fun editStartMessage(
             messageId = newMessageIds[MessageGroup.START]!!.first(),
         ).asSendBehaviour(MessageGroup.START.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.Update(language = language),
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
     )
 
     val choiceLessonMessage = TelegramMessageHandler.Result(
@@ -110,8 +110,8 @@ internal suspend fun editStartMessage(
                 isSectionButtons = true
             )
         ).asSendBehaviour(MessageGroup.CHOICE_SECTION.name),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.Update(language = language),
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
+        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
     )
 
     return listOf(

@@ -1,9 +1,6 @@
 package com.io.plugins
 
-import com.io.telegram.TelegramHttpClient
-import com.io.telegram.TelegramMethod
-import com.io.telegram.TelegramRequest
-import com.io.telegram.WebhookInfo
+import com.io.telegram.*
 import io.ktor.application.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +22,7 @@ fun Application.configureTelegramWebhook() {
         )
 
         if (response.url != webHookPath){
-            method.get<TelegramHttpClient.EmptyResponse>(
+            method.get<EmptyResponse>(
                 request = TelegramRequest.SetWebhookRequest,
                 params = mapOf<String, Any>("url" to webHookPath)
             )

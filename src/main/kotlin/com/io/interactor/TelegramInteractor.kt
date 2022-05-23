@@ -37,7 +37,7 @@ class TelegramInteractorImpl(
     ): GetMessageEntityViaIntToMessageGroup {
         return when (behavior){
             is MessageInteractor.BehaviorForMessages.None -> { _ : Pair<Int, MessageGroup> -> null }
-            is MessageInteractor.BehaviorForMessages.Delete -> { _ : Pair<Int, MessageGroup> -> null }
+            is MessageInteractor.BehaviorForMessages.Delete -> messageInteractor.deleteMessage(chatId)
             is MessageInteractor.BehaviorForMessages.Save -> messageInteractor.saveMessage(chatId)
         }
     }

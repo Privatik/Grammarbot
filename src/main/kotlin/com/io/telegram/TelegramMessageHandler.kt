@@ -12,7 +12,7 @@ import com.io.util.GetBooleanViaMessageEntity
 import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
 import com.io.util.extends.anotherLanguage
 
-internal interface TelegramMessageHandler {
+interface TelegramMessageHandler {
     suspend fun handleMessage(
         user: UserEntity,
         message: Message,
