@@ -2,7 +2,8 @@ package com.io.cache.entity
 
 data class SectionEntity(
     val id: String,
-    val title: String,
+    val titleEn: String,
+    val titleRu: String,
 )
 
 data class SectionRuleEntity(

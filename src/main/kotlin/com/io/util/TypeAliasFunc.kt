@@ -1,6 +1,7 @@
 package com.io.util
 
 import com.io.cache.entity.MessageEntity
+import com.io.cache.entity.SectionRuleEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.MessageGroup
 
@@ -9,3 +10,5 @@ typealias GetUserEntity = suspend () -> UserEntity?
 typealias GetBooleanViaMessageEntity = suspend (MessageEntity) -> Boolean
 
 typealias GetMessageGroupToIntsViaFuncMessageEntity = suspend (GetBooleanViaMessageEntity) -> Map<MessageGroup, List<Int>>
+
+typealias GetString = suspend () -> String

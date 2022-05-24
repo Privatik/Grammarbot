@@ -6,8 +6,8 @@ import com.io.cache.entity.SectionRuleEntity
 
 class SectionCacheImpl: SectionCache {
     val sections = listOf<SectionEntity>(
-        SectionEntity(1, "Past Simple"),
-        SectionEntity(2,"Present Simple")
+        SectionEntity(1, "Past Simple","Past Simple"),
+        SectionEntity(2,"Present Simple","Present Simple")
     )
 
     val sectionRules = listOf<SectionRuleEntity>(
@@ -19,7 +19,7 @@ class SectionCacheImpl: SectionCache {
         return sections
     }
 
-    override suspend fun getCurrentRules(sectionId: Long): SectionRuleEntity {
+    override suspend fun getCurrentRules(sectionId: String): SectionRuleEntity {
         return sectionRules.find { sectionId == it.id }!!
     }
 }

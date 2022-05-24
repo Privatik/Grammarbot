@@ -1,17 +1,18 @@
 package com.io.telegram.command
 
+import com.io.builder.InlineKeyBoardMarkupMachine
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
-import com.io.resourse.ChoiceLessonMessage
-import com.io.resourse.StartMessage
 import com.io.model.Language
 import com.io.model.MessageGroup
-import com.io.telegram.*
+import com.io.resourse.ChoiceLessonMessage
+import com.io.resourse.StartMessage
+import com.io.telegram.TelegramMessageHandler
+import com.io.telegram.deleteMessage
+import com.io.telegram.editMessageText
+import com.io.telegram.sendMessage
 import com.io.util.GetBooleanViaMessageEntity
 import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
-import com.io.util.extends.anotherLanguage
-import com.io.util.inlineKeyBoardMarkup
-import com.io.util.replyKeyBoardMarkup
 
 internal suspend fun sendStartMessage(
     chatId: String,
@@ -24,22 +25,11 @@ internal suspend fun sendStartMessage(
         it.group == MessageGroup.START || it.group == MessageGroup.CHOICE_SECTION
     }
 
-    messageIds(filter)
-        .forEach { ( _, list ) ->
-            deleteMessages.addAll(
-                list.map { id ->
-                    TelegramMessageHandler.Result(
-                        chatId = chatId,
-                        behaviour =  deleteMessage(
-                            chatId,
-                            id
-                        ).asDeleteBehaviour(MessageGroup.NONE.name),
-                        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-                        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
-                    )
-                }
-            )
-        }
+    val hasMessage = messageIds(filter).isNotEmpty()
+
+    if (hasMessage){
+        return emptyList()
+    }
 
     val startMessage = TelegramMessageHandler.Result(
         chatId = chatId,
@@ -56,29 +46,24 @@ internal suspend fun sendStartMessage(
         behaviour = sendMessage(
             chat_id = chatId,
             text = ChoiceLessonMessage.get(language),
-            replyMarkup = inlineKeyBoardMarkup(
-                language,
-                isTranslateButton = true,
-                isSectionButtons = true
-            )
+            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
+                .addTranslateButton()
+                .addSectionButton()
+                .build()
         ).asSendBehaviour(MessageGroup.CHOICE_SECTION.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.None,
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
     )
 
-    return deleteMessages.apply {
-        addAll(
-            listOf(
-                startMessage,
-                choiceLessonMessage
-            )
-        )
-    }
+    return listOf(
+        startMessage,
+        choiceLessonMessage
+    )
 }
 
 internal suspend fun editStartMessage(
     chatId: String,
-    messageIds: suspend ( suspend (com.io.cache.entity.MessageEntity) -> Boolean) -> Map<MessageGroup, List<Int>>,
+    messageIds: GetMessageGroupToIntsViaFuncMessageEntity,
     language: Language
 ): List<TelegramMessageHandler.Result>{
 
@@ -104,11 +89,10 @@ internal suspend fun editStartMessage(
             chat_id = chatId,
             text = ChoiceLessonMessage.get(language),
             messageId = newMessageIds[MessageGroup.CHOICE_SECTION]!!.first(),
-            replyMarkup = inlineKeyBoardMarkup(
-                language,
-                isTranslateButton = true,
-                isSectionButtons = true
-            )
+            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
+                .addTranslateButton()
+                .addSectionButton()
+                .build()
         ).asSendBehaviour(MessageGroup.CHOICE_SECTION.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.None,
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None

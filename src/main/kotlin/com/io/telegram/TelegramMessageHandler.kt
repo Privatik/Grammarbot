@@ -7,10 +7,12 @@ import com.io.model.MessageGroup
 import com.io.resourse.CommandConst
 import com.io.resourse.translateKeyboardMarkup
 import com.io.telegram.command.editStartMessage
+import com.io.telegram.command.editTranslateMessage
 import com.io.telegram.command.sendStartMessage
 import com.io.util.GetBooleanViaMessageEntity
 import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
 import com.io.util.extends.anotherLanguage
+import com.io.util.extends.isSection
 
 interface TelegramMessageHandler {
     suspend fun handleMessage(
@@ -74,8 +76,11 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         user: UserEntity,
         messageIds: GetMessageGroupToIntsViaFuncMessageEntity
     ): List<TelegramMessageHandler.Result>? {
+        if (callbackQuery.data!!.isSection()){
+            callbackQuery.message
+        }
         return when (callbackQuery.data){
-            translateKeyboardMarkup.callbackData -> editStartMessage(
+            translateKeyboardMarkup.callbackData -> editTranslateMessage(
                 callbackQuery.message!!.chat.id,
                 messageIds,
                 user.anotherLanguage()

@@ -1,0 +1,61 @@
+package com.io.telegram.command
+
+import com.io.builder.InlineKeyBoardMarkupMachine
+import com.io.interactor.MessageInteractor
+import com.io.interactor.UserInteractor
+import com.io.model.Language
+import com.io.model.MessageGroup
+import com.io.model.UserState
+import com.io.resourse.ChoiceLessonMessage
+import com.io.telegram.TelegramMessageHandler
+import com.io.telegram.editMessageText
+import com.io.telegram.sendMessage
+import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
+
+internal suspend fun sendSectionMessage(
+    chatId: String,
+    language: Language
+): List<TelegramMessageHandler.Result>{
+    val sectionMessage = TelegramMessageHandler.Result(
+        chatId = chatId,
+        behaviour = sendMessage(
+            chat_id = chatId,
+            text = ChoiceLessonMessage.get(language),
+            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
+                .addTranslateButton()
+                .build()
+        ).asSendBehaviour(MessageGroup.SECTION.name),
+        finishBehaviorUser = UserInteractor.BehaviorForUser.Update(state = UserState.PRE_LEARN),
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
+    )
+
+    return listOf(sectionMessage)
+
+}
+
+internal suspend fun editSectionMessage(
+    chatId: String,
+    messageIds: GetMessageGroupToIntsViaFuncMessageEntity,
+    language: Language
+): List<TelegramMessageHandler.Result>{
+
+    val filter: suspend (com.io.cache.entity.MessageEntity) -> Boolean = {
+        it.group == MessageGroup.SECTION
+    }
+
+    val oldMessage = messageIds(filter)
+
+    val sectionMessage = TelegramMessageHandler.Result(
+        chatId = chatId,
+        behaviour = editMessageText(
+            chat_id = chatId,
+            text = ChoiceLessonMessage.get(language),
+            messageId = oldMessage[MessageGroup.SECTION]!!.first(),
+            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
+                .addTranslateButton()
+                .build()
+        ).asSendBehaviour(MessageGroup.SECTION.name),
+        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
+    )
+}

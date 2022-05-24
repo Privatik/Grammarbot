@@ -1,6 +1,7 @@
 package com.io.util.extends
 
 import com.io.model.MessageGroup
+import com.io.resourse.Resourse
 
 fun String.get(): MessageGroup =
     when (this){
@@ -13,4 +14,8 @@ fun String.get(): MessageGroup =
 
 fun Any.name(): String{
     return this::class.java.simpleName
+}
+
+fun String.isSection(): Boolean{
+    return this.take(Resourse.section.length) == Resourse.section
 }

@@ -18,8 +18,3 @@ val translateKeyboardMarkup = KeyboardMarkup(
     text = TranslateMessage::get,
     callbackData = "translate"
 )
-
-val startLearningKeyboardMarkup = KeyboardMarkup(
-    text = ChoiceLessonMessage::get,
-    callbackData = null
-)
