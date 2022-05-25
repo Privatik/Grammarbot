@@ -5,10 +5,10 @@ import com.io.cache.entity.SectionRuleEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.MessageGroup
 
-typealias GetMessageEntityViaIntToMessageGroup = suspend (messageIds: Pair<Int, MessageGroup>) -> MessageEntity?
+typealias GetMessageEntityViaIntToMessageGroup = suspend (messageId: Int, group: MessageGroup) -> MessageEntity?
 typealias GetUserEntity = suspend () -> UserEntity?
-typealias GetBooleanViaMessageEntity = suspend (MessageEntity) -> Boolean
+typealias GetBooleanViaT<T> = suspend (T) -> Boolean
 
-typealias GetMessageGroupToIntsViaFuncMessageEntity = suspend (GetBooleanViaMessageEntity) -> Map<MessageGroup, List<Int>>
+typealias GetListRViaFuncT<T, R> = suspend (GetBooleanViaT<T>) -> List<R>
 
 typealias GetString = suspend () -> String

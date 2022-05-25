@@ -1,38 +1,37 @@
 package com.io.telegram.command
 
-import com.io.builder.InlineKeyBoardMarkupMachine
+import com.io.cache.entity.MessageEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.Language
-import com.io.model.MessageGroup
-import com.io.resourse.ChoiceLessonMessage
-import com.io.resourse.StartMessage
+import com.io.model.TypeMessage
 import com.io.telegram.TelegramMessageHandler
 import com.io.telegram.editMessageText
-import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
+import com.io.util.GetBooleanViaT
+import com.io.util.GetListRViaFuncT
 
-internal suspend fun editTranslateMessage(
+internal suspend inline fun editTranslateMessage(
     chatId: String,
-    messageIds: GetMessageGroupToIntsViaFuncMessageEntity,
+    messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>,
     language: Language
 ): List<TelegramMessageHandler.Result>{
 
-    val filter: suspend (com.io.cache.entity.MessageEntity) -> Boolean = { true }
+    val filter: GetBooleanViaT<MessageEntity> = { true }
     val newMessageIds = messageIds(filter)
 
     val result = mutableListOf<TelegramMessageHandler.Result>()
 
     var isFirst = true
-    newMessageIds.forEach { messageGroup, list ->
+    newMessageIds.forEach { typeMessage ->
         val message = TelegramMessageHandler.Result(
             chatId = chatId,
             behaviour = editMessageText(
                 chat_id = chatId,
-                text = StartMessage.get(language),
-                messageId = list.first(),
-            ).asSendBehaviour(messageGroup.name),
+                text = typeMessage.get(language),
+                messageId = typeMessage,
+            ).asSendBehaviour(typeMessage.message.group.name),
             finishBehaviorUser = if (isFirst) UserInteractor.BehaviorForUser.Update(language = language)
-                                else UserInteractor.BehaviorForUser.None,
+                                    else UserInteractor.BehaviorForUser.None,
             finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
         )
 

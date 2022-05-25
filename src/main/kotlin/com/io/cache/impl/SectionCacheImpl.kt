@@ -6,13 +6,13 @@ import com.io.cache.entity.SectionRuleEntity
 
 class SectionCacheImpl: SectionCache {
     val sections = listOf<SectionEntity>(
-        SectionEntity(1, "Past Simple","Past Simple"),
-        SectionEntity(2,"Present Simple","Present Simple")
+        SectionEntity("past_simple", "Past Simple","Past Simple"),
+        SectionEntity("present simple","Present Simple","Present Simple")
     )
 
     val sectionRules = listOf<SectionRuleEntity>(
-        SectionRuleEntity(1, "This is rule on english 1", "Это правило на русском 1"),
-        SectionRuleEntity(2,"This is rule on english 2", "Это правило на русском 2")
+        SectionRuleEntity("past_simple", "This is rule on english 1", "Это правило на русском 1",false, false),
+        SectionRuleEntity("present simple","This is rule on english 2", "Это правило на русском 2",false, false)
     )
 
     override suspend fun getAllSection(): List<SectionEntity> {

@@ -5,23 +5,30 @@ import com.io.cache.entity.UserEntity
 import com.io.interactor.TelegramInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.MessageGroup
+import com.io.model.TypeMessage
 import com.io.resourse.ChoiceLessonMessage
 import com.io.resourse.Message
 import com.io.resourse.StartMessage
+import com.io.util.extends.createMessage
+import java.util.*
 
 suspend fun TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>.getUserToMessageIds(
     id: String
-): Pair<UserEntity, GetMessageGroupToIntsViaFuncMessageEntity> {
+): Pair<UserEntity, GetListRViaFuncT<TypeMessage, TypeMessage>> {
     val currentUser = processingUser(id, UserInteractor.BehaviorForUser.GetOrCreate).invoke()
-    val messageIds = getMessagesAsMapByMessageGroup(id)
+    val messageIds = getMessages(id)
     return currentUser!! to messageIds
 }
 
-fun MessageEntity.getMessage(): Message{
-    return when (this.group){
+fun TypeMessage.getMessage(): Message{
+    return when (this.message.group){
         MessageGroup.START -> StartMessage
         MessageGroup.CHOICE_SECTION -> ChoiceLessonMessage
-        MessageGroup.SECTION ->
+        MessageGroup.SECTION -> (this as TypeMessage.Section).section.createMessage()
         else -> throw NoSuchMethodError()
     }
+}
+
+fun List<MessageEntity>.toMapMessageGroupWithIds(): Map<MessageGroup, List<Long>>{
+    return groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
 }

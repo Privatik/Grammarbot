@@ -14,8 +14,10 @@ import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
 
 internal suspend fun sendSectionMessage(
     chatId: String,
+    sectionId: String,
     language: Language
 ): List<TelegramMessageHandler.Result>{
+
     val sectionMessage = TelegramMessageHandler.Result(
         chatId = chatId,
         behaviour = sendMessage(
@@ -31,31 +33,4 @@ internal suspend fun sendSectionMessage(
 
     return listOf(sectionMessage)
 
-}
-
-internal suspend fun editSectionMessage(
-    chatId: String,
-    messageIds: GetMessageGroupToIntsViaFuncMessageEntity,
-    language: Language
-): List<TelegramMessageHandler.Result>{
-
-    val filter: suspend (com.io.cache.entity.MessageEntity) -> Boolean = {
-        it.group == MessageGroup.SECTION
-    }
-
-    val oldMessage = messageIds(filter)
-
-    val sectionMessage = TelegramMessageHandler.Result(
-        chatId = chatId,
-        behaviour = editMessageText(
-            chat_id = chatId,
-            text = ChoiceLessonMessage.get(language),
-            messageId = oldMessage[MessageGroup.SECTION]!!.first(),
-            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
-                .addTranslateButton()
-                .build()
-        ).asSendBehaviour(MessageGroup.SECTION.name),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
-    )
 }

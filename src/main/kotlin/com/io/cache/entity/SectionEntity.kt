@@ -9,5 +9,7 @@ data class SectionEntity(
 data class SectionRuleEntity(
     val id: String,
     val ruleEn: String,
-    val ruleRu: String
+    val ruleRu: String,
+    val hasTranslateButton: Boolean,
+    val hasSectionButtons: Boolean
 )
