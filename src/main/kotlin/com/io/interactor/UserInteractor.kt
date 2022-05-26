@@ -1,7 +1,6 @@
 package com.io.interactor
 
 import com.io.cache.UserCache
-import com.io.cache.entity.UserEntity
 import com.io.model.Language
 import com.io.model.UserState
 import com.io.util.GetUserEntity

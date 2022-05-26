@@ -9,14 +9,17 @@ import com.io.util.GetMessageEntityViaIntToMessageGroup
 
 interface MessageInteractor<T>{
 
-    suspend fun saveMessage(chatId: String, supportId: Any? = null): T
+    suspend fun saveMessage(chatId: String): T
+
+    suspend fun saveAsSectionMessage(chatId: String, sectionId: String): T
 
     suspend fun deleteMessage(chaId: String): T
 
     suspend fun getMessage(chaId: String, term: suspend (MessageEntity) -> Boolean ): List<TypeMessage>
 
     sealed class BehaviorForMessages {
-        object Save: BehaviorForMessages(){
+        object Save: BehaviorForMessages()
+        data class SaveAsSection(val sectionId: String): BehaviorForMessages()
         object Delete: BehaviorForMessages()
         object None: BehaviorForMessages()
     }

@@ -28,7 +28,7 @@ internal suspend fun sendSectionMessage(
                 .build()
         ).asSendBehaviour(MessageGroup.SECTION.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.Update(state = UserState.PRE_LEARN),
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsSection(sectionId)
     )
 
     return listOf(sectionMessage)

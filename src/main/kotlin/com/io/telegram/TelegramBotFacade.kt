@@ -43,8 +43,7 @@ class TelegramBotFacade(
             TelegramResult(
                 behaviour = result.behaviour,
                 doFinish = {
-                    val newValue = it.first to it.second.asMessageGroup()
-                    methodForMessage(newValue)
+                    methodForMessage(it.first, it.second.asMessageGroup())
                     methodForUser()
                 }
             )

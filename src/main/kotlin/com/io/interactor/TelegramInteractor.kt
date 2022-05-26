@@ -11,7 +11,7 @@ interface TelegramInteractor<Message, User> {
 
     suspend fun processingUser(chatId: String, behavior: UserInteractor.BehaviorForUser) : User
 
-    suspend fun getMessages(chatId: String): GetListMessageEntityViaFuncMessageEntity
+    suspend fun getMessages(chatId: String): GetListRViaFuncT<MessageEntity, TypeMessage>
 
 }
 
@@ -27,7 +27,8 @@ class TelegramInteractorImpl(
         return when (behavior){
             is MessageInteractor.BehaviorForMessages.None -> { _ , _ -> null }
             is MessageInteractor.BehaviorForMessages.Delete -> messageInteractor.deleteMessage(chatId)
-            is MessageInteractor.BehaviorForMessages.Save<*> -> messageInteractor.saveMessage(chatId)
+            is MessageInteractor.BehaviorForMessages.Save -> messageInteractor.saveMessage(chatId)
+            is MessageInteractor.BehaviorForMessages.SaveAsSection -> messageInteractor.saveAsSectionMessage(chatId, behavior.sectionId)
         }
     }
 

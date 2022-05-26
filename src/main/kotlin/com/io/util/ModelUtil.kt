@@ -14,7 +14,7 @@ import java.util.*
 
 suspend fun TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>.getUserToMessageIds(
     id: String
-): Pair<UserEntity, GetListRViaFuncT<TypeMessage, TypeMessage>> {
+): Pair<UserEntity, GetListRViaFuncT<MessageEntity, TypeMessage>> {
     val currentUser = processingUser(id, UserInteractor.BehaviorForUser.GetOrCreate).invoke()
     val messageIds = getMessages(id)
     return currentUser!! to messageIds

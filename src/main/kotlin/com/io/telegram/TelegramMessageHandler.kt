@@ -16,13 +16,13 @@ interface TelegramMessageHandler {
     suspend inline fun handleMessage(
         user: UserEntity,
         message: Message,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<Result>?
 
     suspend inline fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<Result>?
 
     data class Result(
