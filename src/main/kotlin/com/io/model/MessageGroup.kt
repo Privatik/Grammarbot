@@ -4,6 +4,9 @@ enum class MessageGroup {
     START,
     CHOICE_SECTION,
     SECTION,
+    LEARN,
+    DESCRIBE_ERROR,
+    RESULT,
     NONE
 }
 

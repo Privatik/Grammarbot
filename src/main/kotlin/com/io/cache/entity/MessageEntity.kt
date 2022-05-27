@@ -9,6 +9,13 @@ data class MessageEntity(
 )
 
 data class MessageToSection(
+    val chatId: String,
     val messageId: Long,
     val sectionId: String
+)
+
+data class MessageToTask(
+    val chatId: String,
+    val messageId: Long,
+    val taskId: Long
 )

@@ -6,5 +6,5 @@ import com.io.model.UserState
 data class UserEntity(
     val chatId: String,
     val currentLanguage: Language,
-    val currentState: UserState
+    val currentState: UserState,
 )

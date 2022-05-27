@@ -1,8 +1,9 @@
 package com.io.model
 
 enum class UserState{
-    INITIAL,
+    RELAX,
     PRE_LEARN,
     LEARN,
-    RELAX
+    POST_LEARN,
+    DESCRIBED_ERROR,
 }

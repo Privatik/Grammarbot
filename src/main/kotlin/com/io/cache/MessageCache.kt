@@ -11,9 +11,7 @@ import com.io.util.GetString
 interface MessageCache {
     suspend fun saveMessageId(chatId: String, messageId: Long, messageGroup: MessageGroup): MessageEntity
 
-    suspend fun deleteMessageId(chatId: String, messageId: Long): MessageEntity
+    suspend fun deleteMessage(chatId: String, messageId: Long): MessageEntity?
 
-    suspend fun getMessages(chatId: String, term: GetBooleanViaT<MessageEntity>): List<TypeMessage>
-
-    suspend fun getSettingRuleEntity(get: GetString): SectionRuleEntity
+    suspend fun getMessages(chatId: String, term: GetBooleanViaT<MessageEntity>): List<MessageEntity>
 }

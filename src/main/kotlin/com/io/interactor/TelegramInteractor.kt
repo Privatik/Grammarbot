@@ -26,9 +26,10 @@ class TelegramInteractorImpl(
     ): GetMessageEntityViaIntToMessageGroup {
         return when (behavior){
             is MessageInteractor.BehaviorForMessages.None -> { _ , _ -> null }
-            is MessageInteractor.BehaviorForMessages.Delete -> messageInteractor.deleteMessage(chatId)
+            is MessageInteractor.BehaviorForMessages.Delete -> messageInteractor.deleteMessages(chatId)
             is MessageInteractor.BehaviorForMessages.Save -> messageInteractor.saveMessage(chatId)
             is MessageInteractor.BehaviorForMessages.SaveAsSection -> messageInteractor.saveAsSectionMessage(chatId, behavior.sectionId)
+            is MessageInteractor.BehaviorForMessages.SaveAsTask -> messageInteractor.saveAsLearnMessage(chatId, behavior.taskId)
         }
     }
 
@@ -45,9 +46,10 @@ class TelegramInteractorImpl(
 
     override suspend fun getMessages(
         chatId: String,
+        term: GetBooleanViaT<MessageEntity>
     ): GetListRViaFuncT<MessageEntity, TypeMessage> {
         return {
-            messageInteractor.getMessage(chatId, it)
+            messageInteractor.getMessages(chatId, term)
         }
     }
 
