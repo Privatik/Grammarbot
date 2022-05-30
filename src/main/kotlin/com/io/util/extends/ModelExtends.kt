@@ -19,20 +19,6 @@ fun UserEntity.anotherLanguage(): Language{
     }
 }
 
-suspend fun MessageEntity.addKeyBoardMarkup(currentLanguage: Language): InlineKeyboardMarkup?{
-    return if (isHasKeyBoardButtons()){
-        InlineKeyBoardMarkupMachine.Builder(currentLanguage).let {
-            if (this.hasTranslateButton){
-                it.addTranslateButton()
-            }
-            if (this.hasSectionButtons){
-                it.addSectionButton()
-            }
-            it.build()
-        }
-    } else null
-}
-
 fun SectionEntity.createMessage():Message{
     return object : Message {
         override val ru: String

@@ -1,5 +1,6 @@
 package com.io.cache.entity
 
+import com.io.model.LessonState
 import com.io.model.MessageGroup
 
 data class MessageEntity(
@@ -17,5 +18,6 @@ data class MessageToSection(
 data class MessageToTask(
     val chatId: String,
     val messageId: Long,
-    val taskId: Long
+    val taskId: Long,
+    val lessonState: LessonState
 )

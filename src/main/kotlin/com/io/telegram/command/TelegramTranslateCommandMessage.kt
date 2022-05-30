@@ -27,8 +27,9 @@ internal suspend inline fun editTranslateMessage(
             chatId = chatId,
             behaviour = editMessageText(
                 chat_id = chatId,
-                text = typeMessage.get(language),
+                text = typeMessage.getMessage().get(language),
                 messageId = typeMessage,
+                replyMarkup =
             ).asSendBehaviour(typeMessage.message.group.name),
             finishBehaviorUser = if (isFirst) UserInteractor.BehaviorForUser.Update(language = language)
                                     else UserInteractor.BehaviorForUser.None,

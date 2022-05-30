@@ -10,5 +10,6 @@ interface SectionCache {
     suspend fun deleteMessages(messageId: Long, term: GetBooleanViaT<MessageToSection>)
 
     suspend fun getAllSection(): List<SectionEntity>
-    suspend fun getCurrentRules(sectionId: String): SectionRuleEntity
+    suspend fun getRules(sectionId: String): SectionRuleEntity
+    suspend fun getCurrentRules(messageId: Long): SectionRuleEntity
 }

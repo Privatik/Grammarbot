@@ -10,38 +10,38 @@ import com.io.telegram.InlineKeyboardMarkup
 import com.io.util.extends.inlineKeyBoardMarkup
 import org.koin.java.KoinJavaComponent.inject
 
-object InlineKeyBoardMarkupMachine {
+class InlineKeyBoardMarkupBuilder(
+    private val currentLanguage: Language = Language.RU,
+) {
+    private val keyboardMarkups = mutableListOf<List<InlineKeyboardButton>>()
 
-    class Builder constructor(private val currentLanguage: Language = Language.RU){
-        private val keyboardMarkups = mutableListOf<List<InlineKeyboardButton>>()
-
-        fun addTranslateButton(): Builder{
-            val button = InlineKeyboardButton(
-                text = translateKeyboardMarkup.text(currentLanguage),
-                callback_data = translateKeyboardMarkup.callbackData
-            )
-            keyboardMarkups.add(listOf(button))
-            return this
-        }
-
-        fun addSectionButton(sectionEntities: List<SectionEntity>): Builder{
-            for (i in sectionEntities.indices step 2) {
-                val firstItem = sectionEntities[i].inlineKeyBoardMarkup(currentLanguage)
-                val secondItem = sectionEntities.getOrNull(i + 1)?.inlineKeyBoardMarkup(currentLanguage)
-
-                keyboardMarkups.add(
-                    if (secondItem != null){
-                        listOf(firstItem, secondItem)
-                    } else {
-                        listOf(firstItem)
-                    }
-                )
-            }
-            return this
-        }
-
-        fun build(): InlineKeyboardMarkup{
-            return InlineKeyboardMarkup(keyboardMarkups)
-        }
+    fun addTranslateButton(): InlineKeyBoardMarkupBuilder{
+        val button = InlineKeyboardButton(
+            text = translateKeyboardMarkup.text(currentLanguage),
+            callback_data = translateKeyboardMarkup.callbackData
+        )
+        keyboardMarkups.add(listOf(button))
+        return this
     }
+
+    fun addSectionButton(sectionEntities: List<SectionEntity>): InlineKeyBoardMarkupBuilder{
+        for (i in sectionEntities.indices step 2) {
+            val firstItem = sectionEntities[i].inlineKeyBoardMarkup(currentLanguage)
+            val secondItem = sectionEntities.getOrNull(i + 1)?.inlineKeyBoardMarkup(currentLanguage)
+
+            keyboardMarkups.add(
+                if (secondItem != null){
+                    listOf(firstItem, secondItem)
+                } else {
+                    listOf(firstItem)
+                }
+            )
+        }
+        return this
+    }
+
+    fun build(): InlineKeyboardMarkup{
+        return InlineKeyboardMarkup(keyboardMarkups)
+    }
+
 }

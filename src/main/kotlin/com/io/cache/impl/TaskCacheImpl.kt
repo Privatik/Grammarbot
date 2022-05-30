@@ -43,9 +43,9 @@ class TaskCacheImpl: TaskCache {
     )
 
 
-    override suspend fun saveTask(chatId: String, messageId: Long, taskId: Long) {
+    override suspend fun saveTask(chatId: String, messageId: Long, taskId: Long, state: LessonState) {
         messagesWithTask.add(
-            MessageToTask(chatId, messageId, taskId)
+            MessageToTask(chatId, messageId, taskId, state)
         )
     }
 
@@ -61,4 +61,13 @@ class TaskCacheImpl: TaskCache {
 
         return tasks.getRandomItemOrNull()
     }
+
+    override suspend fun getCurrentTask(messageId: Long): Task {
+        val message = messagesWithTask.find { it.messageId == messageId }!!
+        return when (message.lessonState){
+            LessonState.PUT -> tasksPut.find { message.taskId == it.id }!!
+            LessonState.WRITE -> taskWrite.find { message.taskId == it.id }!!
+        }
+    }
+
 }

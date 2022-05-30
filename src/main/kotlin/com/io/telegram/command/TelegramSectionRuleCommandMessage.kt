@@ -1,6 +1,6 @@
 package com.io.telegram.command
 
-import com.io.builder.InlineKeyBoardMarkupMachine
+import com.io.builder.InlineKeyBoardMarkupBuilder
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.Language
@@ -8,9 +8,7 @@ import com.io.model.MessageGroup
 import com.io.model.UserState
 import com.io.resourse.ChoiceLessonMessage
 import com.io.telegram.TelegramMessageHandler
-import com.io.telegram.editMessageText
 import com.io.telegram.sendMessage
-import com.io.util.GetMessageGroupToIntsViaFuncMessageEntity
 
 internal suspend fun sendSectionMessage(
     chatId: String,
@@ -23,7 +21,7 @@ internal suspend fun sendSectionMessage(
         behaviour = sendMessage(
             chat_id = chatId,
             text = ChoiceLessonMessage.get(language),
-            replyMarkup = InlineKeyBoardMarkupMachine.Builder()
+            replyMarkup = InlineKeyBoardMarkupBuilder()
                 .addTranslateButton()
                 .build()
         ).asSendBehaviour(MessageGroup.SECTION.name),
