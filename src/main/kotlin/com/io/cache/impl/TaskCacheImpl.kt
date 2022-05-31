@@ -43,13 +43,13 @@ class TaskCacheImpl: TaskCache {
     )
 
 
-    override suspend fun saveTask(chatId: String, messageId: Long, taskId: Long, state: LessonState) {
+    override suspend fun saveTask(chatId: String, messageId: Int, taskId: Long, state: LessonState) {
         messagesWithTask.add(
             MessageToTask(chatId, messageId, taskId, state)
         )
     }
 
-    override suspend fun deleteMessageTask(messageId: Long, term: GetBooleanViaT<MessageToTask>) {
+    override suspend fun deleteMessageTask(messageId: Int, term: GetBooleanViaT<MessageToTask>) {
         messagesWithTask.removeIf { term(it) && messageId == it.messageId }
     }
 
@@ -62,7 +62,7 @@ class TaskCacheImpl: TaskCache {
         return tasks.getRandomItemOrNull()
     }
 
-    override suspend fun getCurrentTask(messageId: Long): Task {
+    override suspend fun getCurrentTask(messageId: Int): Task {
         val message = messagesWithTask.find { it.messageId == messageId }!!
         return when (message.lessonState){
             LessonState.PUT -> tasksPut.find { message.taskId == it.id }!!

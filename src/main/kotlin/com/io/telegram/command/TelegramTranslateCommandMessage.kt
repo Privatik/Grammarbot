@@ -9,39 +9,32 @@ import com.io.telegram.TelegramMessageHandler
 import com.io.telegram.editMessageText
 import com.io.util.GetBooleanViaT
 import com.io.util.GetListRViaFuncT
+import com.io.util.extends.messageTerm
+import com.io.util.extends.messageTermWithCheckChatId
+import com.io.util.getMessage
+import com.io.util.getReplyKeyboard
 
-internal suspend inline fun editTranslateMessage(
+suspend fun editTranslateMessage(
     chatId: String,
     messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>,
     language: Language
 ): List<TelegramMessageHandler.Result>{
 
-    val filter: GetBooleanViaT<MessageEntity> = { true }
+    val filter: GetBooleanViaT<MessageEntity> = messageTermWithCheckChatId(chatId){ true }
     val newMessageIds = messageIds(filter)
 
-    val result = mutableListOf<TelegramMessageHandler.Result>()
-
-    var isFirst = true
-    newMessageIds.forEach { typeMessage ->
-        val message = TelegramMessageHandler.Result(
+    return newMessageIds.mapIndexed { index, typeMessage ->
+        TelegramMessageHandler.Result(
             chatId = chatId,
             behaviour = editMessageText(
                 chat_id = chatId,
                 text = typeMessage.getMessage().get(language),
-                messageId = typeMessage,
-                replyMarkup =
+                messageId = typeMessage.message.id,
+                replyMarkup = typeMessage.getReplyKeyboard(language)
             ).asSendBehaviour(typeMessage.message.group.name),
-            finishBehaviorUser = if (isFirst) UserInteractor.BehaviorForUser.Update(language = language)
-                                    else UserInteractor.BehaviorForUser.None,
+            finishBehaviorUser = if (index == 0) UserInteractor.BehaviorForUser.Update(language = language)
+            else UserInteractor.BehaviorForUser.None,
             finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
         )
-
-        if (isFirst){
-            isFirst = false
-        }
-
-        result.add(message)
     }
-
-    return result
 }

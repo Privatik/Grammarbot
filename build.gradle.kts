@@ -27,11 +27,13 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("org.telegram:telegrambots-spring-boot-starter:5.0.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("org.telegram:telegrambots-spring-boot-starter:6.0.1")
 
     //coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.1-native-mt")
 
     // Koin core features
     implementation("io.insert-koin:koin-ktor:$koin_version")

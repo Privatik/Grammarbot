@@ -12,10 +12,6 @@ fun String.get(): MessageGroup =
         else -> error("Not found MessageGroup - $this")
     }
 
-fun Any.name(): String{
-    return this::class.java.simpleName
-}
-
 fun String.isSection(): Boolean{
     return this.take(Resourse.section.length) == Resourse.section
 }

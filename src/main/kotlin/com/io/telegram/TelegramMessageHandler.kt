@@ -5,21 +5,23 @@ import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.TypeMessage
 import com.io.resourse.CommandConst
+import com.io.resourse.Resourse
 import com.io.resourse.translateKeyboardMarkup
 import com.io.telegram.command.editTranslateMessage
+import com.io.telegram.command.sendSectionMessage
 import com.io.telegram.command.sendStartMessage
 import com.io.util.GetListRViaFuncT
 import com.io.util.extends.anotherLanguage
 import com.io.util.extends.isSection
 
 interface TelegramMessageHandler {
-    suspend inline fun handleMessage(
+    suspend fun handleMessage(
         user: UserEntity,
         message: Message,
         messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<Result>?
 
-    suspend inline fun handleCallbackQuery(
+    suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
         messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
@@ -35,10 +37,10 @@ interface TelegramMessageHandler {
 
 internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
 
-    override suspend inline fun handleMessage(
+    override suspend fun handleMessage(
         user: UserEntity,
         message: Message,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<TelegramMessageHandler.Result>? {
         handleCommandMessage(message, user, messageIds)?.let { result ->
             return result
@@ -47,10 +49,10 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         return null
     }
 
-    override suspend inline fun handleCallbackQuery(
+    override suspend fun handleCallbackQuery(
         user: UserEntity,
         callbackQuery: CallbackQuery,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<TelegramMessageHandler.Result>? {
         handleCallbackQueryMessage(callbackQuery, user, messageIds)?.let { result ->
             return result
@@ -58,24 +60,29 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         return null
     }
 
-    private suspend inline fun handleCommandMessage(
+    private suspend fun handleCommandMessage(
         message: Message,
         user: UserEntity,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<TelegramMessageHandler.Result>? {
         return when (message.text){
-            CommandConst.START -> sendStartMessage(message.chat.id, messageIds, user.currentLanguage)
+            CommandConst.START -> sendStartMessage(message.chat.id, message.message_id, messageIds, user.currentLanguage)
             else -> null
         }
     }
 
-    private suspend inline fun handleCallbackQueryMessage(
+    private suspend fun handleCallbackQueryMessage(
         callbackQuery: CallbackQuery,
         user: UserEntity,
-        messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>
+        messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>
     ): List<TelegramMessageHandler.Result>? {
         if (callbackQuery.data!!.isSection()){
-            callbackQuery.message
+            return sendSectionMessage(
+                chatId = callbackQuery.message!!.chat.id,
+                sectionId = callbackQuery.data!!.drop(Resourse.section.length),
+                messageIds = messageIds,
+                language = user.currentLanguage
+            )
         }
         return when (callbackQuery.data){
             translateKeyboardMarkup.callbackData -> editTranslateMessage(

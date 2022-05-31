@@ -18,7 +18,10 @@ interface MessageInteractor<T>{
 
     suspend fun deleteMessages(chatId: String): T
 
-    suspend fun getMessages(chatId: String, term: GetBooleanViaT<MessageEntity> ): List<TypeMessage>
+    suspend fun getMessages(
+        chatId: String,
+        searchRule: GetBooleanViaT<MessageEntity>
+    ): List<TypeMessage>
 
     sealed class BehaviorForMessages {
         object Save: BehaviorForMessages()
@@ -68,17 +71,20 @@ class MessageInteractorImpl(
         }
     }
 
-    override suspend fun getMessages(chatId: String, term: GetBooleanViaT<MessageEntity>): List<TypeMessage> {
-        return messageCache.getMessages(chatId, term).map { it.asTypeMessage() }
+    override suspend fun getMessages(
+        chatId: String,
+        searchRule: GetBooleanViaT<MessageEntity>,
+    ): List<TypeMessage> {
+        return messageCache.getMessages(chatId, searchRule).map { it.asTypeMessage() }
     }
 
     private suspend fun MessageEntity.asTypeMessage(): TypeMessage{
         return when (group){
-            MessageGroup.START,
-            MessageGroup.DESCRIBE_ERROR,
             MessageGroup.NONE,
             MessageGroup.RESULT,
-            MessageGroup.CHOICE_SECTION -> TypeMessage.Info(this)
+            MessageGroup.START,
+            MessageGroup.DESCRIBE_ERROR -> TypeMessage.Info(this)
+            MessageGroup.CHOICE_SECTION -> TypeMessage.SectionMenu(this, sectionCache.getAllSectionInfo())
             MessageGroup.SECTION -> TypeMessage.Section(this, sectionCache.getCurrentRules(id))
             MessageGroup.LEARN -> TypeMessage.Learn(this, taskCache.getCurrentTask(id))
         }

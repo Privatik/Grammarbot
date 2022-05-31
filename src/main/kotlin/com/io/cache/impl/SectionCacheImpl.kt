@@ -19,15 +19,15 @@ class SectionCacheImpl(): SectionCache {
         SectionRuleEntity("present_simple","This is rule on english 2", "Это правило на русском 2")
     )
 
-    override suspend fun saveMessage(chatId: String, messageId: Long, sectionId: String) {
+    override suspend fun saveMessage(chatId: String, messageId: Int, sectionId: String) {
         messagesWithSection.add(MessageToSection(chatId, messageId, sectionId))
     }
 
-    override suspend fun deleteMessages(messageId: Long, term: GetBooleanViaT<MessageToSection>) {
+    override suspend fun deleteMessages(messageId: Int, term: GetBooleanViaT<MessageToSection>) {
         messagesWithSection.removeIf { term(it) && messageId == it.messageId }
     }
 
-    override suspend fun getAllSection(): List<SectionEntity> {
+    override suspend fun getAllSectionInfo(): List<SectionEntity> {
         return sections
     }
 
@@ -35,7 +35,7 @@ class SectionCacheImpl(): SectionCache {
         return sectionRules.find { sectionId == it.id }!!
     }
 
-    override suspend fun getCurrentRules(messageId: Long): SectionRuleEntity {
+    override suspend fun getCurrentRules(messageId: Int): SectionRuleEntity {
         val message = messagesWithSection.find { messageId == it.messageId }!!
         return getRules(message.sectionId)
     }

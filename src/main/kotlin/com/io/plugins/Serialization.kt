@@ -1,12 +1,9 @@
 package com.io.plugins
 
-import io.ktor.serialization.*
-import io.ktor.features.*
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
-import io.ktor.routing.*
-import kotlinx.serialization.json.Json
+
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {

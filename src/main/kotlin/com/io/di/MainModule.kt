@@ -47,7 +47,7 @@ val interactorModule = module {
         TelegramInteractorImpl(get(), get())
     }
     factory<MessageInteractor<GetMessageEntityViaIntToMessageGroup>> {
-        MessageInteractorImpl(get())
+        MessageInteractorImpl(get(), get(), get())
     }
     factory<UserInteractor<GetUserEntity>> {
         UserInteractorImpl(get())

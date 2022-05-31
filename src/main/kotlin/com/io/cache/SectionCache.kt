@@ -6,10 +6,10 @@ import com.io.cache.entity.SectionRuleEntity
 import com.io.util.GetBooleanViaT
 
 interface SectionCache {
-    suspend fun saveMessage(chatId: String, messageId: Long, sectionId: String)
-    suspend fun deleteMessages(messageId: Long, term: GetBooleanViaT<MessageToSection>)
+    suspend fun saveMessage(chatId: String, messageId: Int, sectionId: String)
+    suspend fun deleteMessages(messageId: Int, term: GetBooleanViaT<MessageToSection>)
 
-    suspend fun getAllSection(): List<SectionEntity>
+    suspend fun getAllSectionInfo(): List<SectionEntity>
     suspend fun getRules(sectionId: String): SectionRuleEntity
-    suspend fun getCurrentRules(messageId: Long): SectionRuleEntity
+    suspend fun getCurrentRules(messageId: Int): SectionRuleEntity
 }

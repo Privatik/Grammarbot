@@ -1,15 +1,14 @@
 package com.io.telegram
 
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 class TelegramHttpClient(
@@ -25,8 +24,8 @@ class TelegramHttpClient(
                 level = LogLevel.BODY
             }
         }
-        install(JsonFeature){
-            serializer = KotlinxSerializer(jsonSetting)
+        install(ContentNegotiation) {
+            json(json = jsonSetting)
         }
     }
 
@@ -34,9 +33,11 @@ class TelegramHttpClient(
         request: TelegramRequest,
         params: Map<String, Any>
     ): EmptyResponse = withContext(Dispatchers.IO){
-        client.get<HttpResponse>("$basePath/${request.path}") {
-            params.forEach {
-                parameter(it.key, it.value)
+        client.get("$basePath/${request.path}") {
+            url {
+                params.forEach { (key, value) ->
+                    parameters.append(key, value.toString())
+                }
             }
         }
         return@withContext EmptyResponse
@@ -47,11 +48,13 @@ class TelegramHttpClient(
         params: Map<String, Any>
     ): Deferred<String> = withContext(Dispatchers.IO){
         return@withContext async {
-            client.get<String>("$basePath/${request.path}") {
-                params.forEach {
-                    parameter(it.key, it.value)
+            client.get("$basePath/${request.path}") {
+                url {
+                    params.forEach { (key, value) ->
+                        parameters.append(key, value.toString())
+                    }
                 }
-            }
+            }.body()
         }
     }
 
@@ -81,9 +84,9 @@ class TelegramHttpClient(
     ): Deferred<TelegramResponse<MessageIdResponse>>  {
         delay(time)
         coroutineScope.launch {
-            client.post<HttpResponse>("$basePath/${body.path}") {
-                this.body = body
+            client.post("$basePath/${body.path}") {
                 contentType(ContentType.Application.Json)
+                setBody(body)
             }
         }
         return coroutineScope.async { TelegramResponse(ok = true, result = MessageIdResponse(message_id = deleteMessageid)) }
@@ -97,9 +100,9 @@ class TelegramHttpClient(
         delay(time)
         return coroutineScope.async {
             client.post("$basePath/${body.path}") {
-                this.body = body
                 contentType(ContentType.Application.Json)
-            }
+                setBody(body)
+            }.body()
         }
     }
     

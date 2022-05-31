@@ -1,20 +1,26 @@
 package com.io.telegram.command
 
 import com.io.builder.InlineKeyBoardMarkupBuilder
+import com.io.cache.entity.MessageEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.Language
 import com.io.model.MessageGroup
+import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.resourse.ChoiceLessonMessage
 import com.io.telegram.TelegramMessageHandler
 import com.io.telegram.sendMessage
+import com.io.util.GetBooleanViaT
+import com.io.util.GetListRViaFuncT
 
-internal suspend fun sendSectionMessage(
+suspend fun sendSectionMessage(
     chatId: String,
     sectionId: String,
+    messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>,
     language: Language
 ): List<TelegramMessageHandler.Result>{
+    
 
     val sectionMessage = TelegramMessageHandler.Result(
         chatId = chatId,

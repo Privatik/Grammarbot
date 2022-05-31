@@ -1,15 +1,14 @@
 package com.io.util.extends
 
-import com.io.builder.InlineKeyBoardMarkupMachine
-import com.io.cache.entity.MessageEntity
 import com.io.cache.entity.SectionEntity
 import com.io.cache.entity.SectionRuleEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
-import com.io.resourse.*
+import com.io.resourse.KeyboardMarkup
+import com.io.resourse.Message
+import com.io.resourse.Resourse
+import com.io.resourse.createKeyboardMarkup
 import com.io.telegram.InlineKeyboardButton
-import com.io.telegram.InlineKeyboardMarkup
-import com.io.telegram.KeyboardButton
 
 fun UserEntity.anotherLanguage(): Language{
     return if (currentLanguage == Language.EN){

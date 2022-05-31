@@ -1,8 +1,10 @@
 package com.io.plugins
 
-import com.io.di.*
-import io.ktor.application.*
-import org.koin.ktor.ext.Koin
+import com.io.di.botModule
+import com.io.di.interactorModule
+import com.io.di.serviceModule
+import io.ktor.server.application.*
+import org.koin.ktor.plugin.Koin
 
 fun Application.configureKoin() {
     install(Koin) {

@@ -27,7 +27,7 @@ class UserCacheImpl (
         val user = UserEntity(
             chatId = chatId,
             currentLanguage = Language.EN,
-            currentState = UserState.INITIAL
+            currentState = UserState.RELAX
         )
         users.add(user)
         print()

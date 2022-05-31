@@ -2,14 +2,17 @@ package com.io.util
 
 import com.io.builder.InlineKeyBoardMarkupBuilder
 import com.io.cache.entity.MessageEntity
+import com.io.cache.entity.SectionEntity
 import com.io.cache.entity.UserEntity
 import com.io.interactor.TelegramInteractor
 import com.io.interactor.UserInteractor
+import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.model.TypeMessage
 import com.io.resourse.ChoiceLessonMessage
 import com.io.resourse.Message
 import com.io.resourse.StartMessage
+import com.io.telegram.InlineKeyboardMarkup
 import com.io.telegram.ReplyKeyboard
 import com.io.util.extends.createMessage
 import java.util.*
@@ -30,20 +33,16 @@ fun TypeMessage.getMessage(): Message{
         else -> throw NoSuchMethodError()
     }
 }
-fun TypeMessage.getReply(): ReplyKeyboard?{
+fun TypeMessage.getReplyKeyboard(language: Language): InlineKeyboardMarkup?{
 
     return when (this.message.group){
-        MessageGroup.CHOICE_SECTION -> InlineKeyBoardMarkupBuilder()
+        MessageGroup.CHOICE_SECTION -> InlineKeyBoardMarkupBuilder(language)
             .addTranslateButton()
+            .addSectionButton((this as TypeMessage.SectionMenu).sections)
             .build()
-        MessageGroup.SECTION -> InlineKeyBoardMarkupBuilder()
+        MessageGroup.SECTION -> InlineKeyBoardMarkupBuilder(language)
             .addTranslateButton()
             .build()
         else -> null
     }
-}
-
-
-fun List<MessageEntity>.toMapMessageGroupWithIds(): Map<MessageGroup, List<Long>>{
-    return groupByTo(EnumMap(MessageGroup::class.java), {it.group}, {it.id})
 }

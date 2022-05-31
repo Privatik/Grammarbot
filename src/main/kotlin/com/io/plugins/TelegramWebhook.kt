@@ -1,7 +1,7 @@
 package com.io.plugins
 
 import com.io.telegram.*
-import io.ktor.application.*
+import io.ktor.server.application.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

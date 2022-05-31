@@ -9,9 +9,12 @@ import com.io.util.GetString
 
 
 interface MessageCache {
-    suspend fun saveMessageId(chatId: String, messageId: Long, messageGroup: MessageGroup): MessageEntity
+    suspend fun saveMessageId(chatId: String, messageId: Int, messageGroup: MessageGroup): MessageEntity
 
-    suspend fun deleteMessage(chatId: String, messageId: Long): MessageEntity?
+    suspend fun deleteMessage(chatId: String, messageId: Int): MessageEntity?
 
-    suspend fun getMessages(chatId: String, term: GetBooleanViaT<MessageEntity>): List<MessageEntity>
+    suspend fun getMessages(
+        chatId: String,
+        searchRule: GetBooleanViaT<MessageEntity>
+    ): List<MessageEntity>
 }
