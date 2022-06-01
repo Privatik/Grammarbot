@@ -5,9 +5,3 @@ data class SectionEntity(
     val titleEn: String,
     val titleRu: String,
 )
-
-data class SectionRuleEntity(
-    val id: String,
-    val ruleEn: String,
-    val ruleRu: String
-)

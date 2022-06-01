@@ -1,7 +1,6 @@
 package com.io.cache
 
-import com.io.cache.entity.MessageEntity
-import com.io.cache.entity.SectionRuleEntity
+import com.io.cache.entity.Entity.MessageEntity
 import com.io.model.TypeMessage
 import com.io.model.MessageGroup
 import com.io.util.GetBooleanViaT

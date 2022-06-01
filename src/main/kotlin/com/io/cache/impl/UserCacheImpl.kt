@@ -2,7 +2,6 @@ package com.io.cache.impl
 
 import com.io.cache.MessageCache
 import com.io.cache.UserCache
-import com.io.cache.entity.MessageEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
 import com.io.model.UserState

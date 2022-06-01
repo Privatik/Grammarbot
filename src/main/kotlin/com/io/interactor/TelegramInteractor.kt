@@ -1,5 +1,6 @@
 package com.io.interactor
 
+import com.io.cache.entity.Entity
 import com.io.cache.entity.MessageEntity
 import com.io.model.TypeMessage
 import com.io.util.*
@@ -11,7 +12,7 @@ interface TelegramInteractor<Message, User> {
 
     suspend fun processingUser(chatId: String, behavior: UserInteractor.BehaviorForUser) : User
 
-    suspend fun getMessages(chatId: String): GetListRViaFuncT<MessageEntity, TypeMessage>
+    suspend fun getMessages(chatId: String): GetListRViaFuncT<Entity, TypeMessage>
 
 }
 
@@ -44,7 +45,7 @@ class TelegramInteractorImpl(
         }
     }
 
-    override suspend fun getMessages(chatId: String): GetListRViaFuncT<MessageEntity, TypeMessage> {
+    override suspend fun getMessages(chatId: String): GetListRViaFuncT<Entity, TypeMessage> {
         return {
             messageInteractor.getMessages(chatId, it)
         }

@@ -1,6 +1,10 @@
 package com.io.model
 
-import com.io.cache.entity.*
+import com.io.cache.entity.Entity.MessageEntity
+import com.io.cache.entity.Entity.SectionRuleEntity
+import com.io.cache.entity.Entity.Task
+import com.io.cache.entity.ResultEntity
+import com.io.cache.entity.SectionEntity
 import com.io.telegram.InlineKeyboardMarkup
 import com.io.telegram.ReplyKeyboard
 

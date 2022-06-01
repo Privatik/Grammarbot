@@ -1,7 +1,8 @@
 package com.io.cache
 
+import com.io.cache.entity.Entity
 import com.io.cache.entity.MessageToTask
-import com.io.cache.entity.Task
+import com.io.cache.entity.Entity.Task
 import com.io.model.LessonState
 import com.io.util.GetBooleanViaT
 

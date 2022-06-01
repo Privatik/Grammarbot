@@ -1,6 +1,7 @@
 package com.io.telegram.command
 
 import com.io.builder.InlineKeyBoardMarkupBuilder
+import com.io.cache.entity.Entity
 import com.io.cache.entity.MessageEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
@@ -13,20 +14,28 @@ import com.io.telegram.TelegramMessageHandler
 import com.io.telegram.sendMessage
 import com.io.util.GetBooleanViaT
 import com.io.util.GetListRViaFuncT
+import com.io.util.extends.createMessage
+import com.io.util.extends.messageTerm
+import com.io.util.extends.sectionTerm
 
 suspend fun sendSectionMessage(
     chatId: String,
     sectionId: String,
-    messageIds: GetListRViaFuncT<MessageEntity, TypeMessage>,
+    messageIds: GetListRViaFuncT<Entity.SectionRuleEntity, TypeMessage>,
     language: Language
 ): List<TelegramMessageHandler.Result>{
-    
+
+    val filter: GetBooleanViaT<Entity.SectionRuleEntity> = sectionTerm {
+        it.id == sectionId
+    }
+
+    val message = messageIds(filter).first() as TypeMessage.Section
 
     val sectionMessage = TelegramMessageHandler.Result(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
-            text = ChoiceLessonMessage.get(language),
+            text = message.section.createMessage().get(language),
             replyMarkup = InlineKeyBoardMarkupBuilder()
                 .addTranslateButton()
                 .build()

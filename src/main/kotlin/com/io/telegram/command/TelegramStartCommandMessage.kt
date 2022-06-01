@@ -15,16 +15,17 @@ import com.io.telegram.sendMessage
 import com.io.util.GetBooleanViaT
 import com.io.util.GetListRViaFuncT
 import com.io.util.extends.messageTerm
+import com.io.util.extends.messageTermWithCheckChatId
 
 suspend fun sendStartMessage(
     chatId: String,
     currentMessageId: Int,
-    messageIds: GetListRViaFuncT<com.io.cache.entity.MessageEntity, TypeMessage>,
+    messageIds: GetListRViaFuncT<com.io.cache.entity.Entity.MessageEntity, TypeMessage>,
     language: Language
 ): List<TelegramMessageHandler.Result>{
 
-    val filter: GetBooleanViaT<com.io.cache.entity.MessageEntity> = messageTerm{
-        it.group == MessageGroup.CHOICE_SECTION && (it.id == ChoiceSectionId || it.chatId == chatId)
+    val filter: GetBooleanViaT<com.io.cache.entity.Entity.MessageEntity> = messageTermWithCheckChatId(chatId){
+        it.group == MessageGroup.START || it.group == MessageGroup.CHOICE_SECTION
     }
 
     val messages = messageIds(filter)

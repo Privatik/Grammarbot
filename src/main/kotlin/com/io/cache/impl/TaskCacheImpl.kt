@@ -4,6 +4,9 @@ import com.io.cache.TaskCache
 import com.io.cache.entity.*
 import com.io.model.LessonState
 import com.io.util.GetBooleanViaT
+import com.io.cache.entity.Entity.Task.PutTaskEntity
+import com.io.cache.entity.Entity.Task.WriteTaskEntity
+import com.io.cache.entity.Entity.Task
 import com.io.util.extends.getRandomItemOrNull
 import kotlin.random.Random
 

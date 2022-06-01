@@ -3,7 +3,7 @@ package com.io.cache.impl
 import com.io.cache.SectionCache
 import com.io.cache.entity.MessageToSection
 import com.io.cache.entity.SectionEntity
-import com.io.cache.entity.SectionRuleEntity
+import com.io.cache.entity.Entity.SectionRuleEntity
 import com.io.util.GetBooleanViaT
 
 class SectionCacheImpl(): SectionCache {
@@ -31,12 +31,12 @@ class SectionCacheImpl(): SectionCache {
         return sections
     }
 
-    override suspend fun getRules(sectionId: String): SectionRuleEntity {
-        return sectionRules.find { sectionId == it.id }!!
+    override suspend fun getRules(term: GetBooleanViaT<SectionRuleEntity>): List<SectionRuleEntity> {
+        return sectionRules.filter { term(it) }
     }
 
     override suspend fun getCurrentRules(messageId: Int): SectionRuleEntity {
         val message = messagesWithSection.find { messageId == it.messageId }!!
-        return getRules(message.sectionId)
+        return getRules(term = { message.sectionId == it.id }).first()
     }
 }

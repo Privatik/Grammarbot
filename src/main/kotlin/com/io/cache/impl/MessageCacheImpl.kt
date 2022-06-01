@@ -1,24 +1,12 @@
 package com.io.cache.impl
 
 import com.io.cache.MessageCache
-import com.io.cache.entity.MessageEntity
+import com.io.cache.entity.Entity.MessageEntity
 import com.io.model.MessageGroup
-import com.io.resourse.ChoiceSectionId
-import com.io.resourse.SupportChatId
 import com.io.util.GetBooleanViaT
 
 class MessageCacheImpl: MessageCache {
     private val messages = mutableListOf<MessageEntity>()
-
-    init {
-        messages.add(
-            MessageEntity(
-                id = ChoiceSectionId,
-                chatId = SupportChatId,
-                group = MessageGroup.CHOICE_SECTION
-            )
-        )
-    }
 
     private fun print(){
         println("Message $messages")

@@ -3,10 +3,11 @@ package com.io.interactor
 import com.io.cache.MessageCache
 import com.io.cache.SectionCache
 import com.io.cache.TaskCache
-import com.io.cache.entity.MessageEntity
+import com.io.cache.entity.Entity
 import com.io.model.LessonState
 import com.io.model.MessageGroup
 import com.io.model.TypeMessage
+import com.io.resourse.emptyMessageEntity
 import com.io.util.GetBooleanViaT
 import com.io.util.GetMessageEntityViaIntToMessageGroup
 
@@ -20,7 +21,7 @@ interface MessageInteractor<T>{
 
     suspend fun getMessages(
         chatId: String,
-        searchRule: GetBooleanViaT<MessageEntity>
+        searchRule: Pair<MessageGroup, GetBooleanViaT<Entity>>
     ): List<TypeMessage>
 
     sealed class BehaviorForMessages {
@@ -73,12 +74,26 @@ class MessageInteractorImpl(
 
     override suspend fun getMessages(
         chatId: String,
-        searchRule: GetBooleanViaT<MessageEntity>,
+        searchRule: Pair<MessageGroup, GetBooleanViaT<Entity>>
     ): List<TypeMessage> {
-        return messageCache.getMessages(chatId, searchRule).map { it.asTypeMessage() }
+        return when(searchRule.first){
+            MessageGroup.NONE,
+            MessageGroup.START,
+            MessageGroup.CHOICE_SECTION -> {
+                messageCache.getMessages(chatId, searchRule.second)
+                    .ifEmpty { listOf(emptyMessageEntity.copy(group = MessageGroup.CHOICE_SECTION)) }
+                    .map { it.asTypeMessage() }
+            }
+            MessageGroup.SECTION -> {
+                sectionCache.getRules(searchRule.second).map { it.asTypeMessage() }
+            }
+            MessageGroup.LEARN,
+            MessageGroup.DESCRIBE_ERROR ,
+            MessageGroup.RESULT -> throw NoSuchMethodError()
+        }
     }
 
-    private suspend fun MessageEntity.asTypeMessage(): TypeMessage{
+    private suspend fun Entity.MessageEntity.asTypeMessage(): TypeMessage{
         return when (group){
             MessageGroup.NONE,
             MessageGroup.RESULT,
@@ -88,6 +103,13 @@ class MessageInteractorImpl(
             MessageGroup.SECTION -> TypeMessage.Section(this, sectionCache.getCurrentRules(id))
             MessageGroup.LEARN -> TypeMessage.Learn(this, taskCache.getCurrentTask(id))
         }
+    }
+
+    private suspend fun Entity.SectionRuleEntity.asTypeMessage(): TypeMessage{
+        return TypeMessage.Section(
+            emptyMessageEntity,
+            this
+        )
     }
 
 }
