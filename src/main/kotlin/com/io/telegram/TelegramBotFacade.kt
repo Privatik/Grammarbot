@@ -1,12 +1,10 @@
 package com.io.telegram
 
-import com.io.cache.entity.MessageEntity
-import com.io.cache.entity.UserEntity
 import com.io.interactor.TelegramInteractor
-import com.io.interactor.UserInteractor
-import com.io.model.MessageGroup
 import com.io.model.asMessageGroup
-import com.io.util.*
+import com.io.util.GetMessageEntityViaIntToMessageGroup
+import com.io.util.GetUserEntity
+import com.io.util.extends.getUserToMessageIds
 
 class TelegramBotFacade(
     private val telegramInteractor: TelegramInteractor<GetMessageEntityViaIntToMessageGroup, GetUserEntity>,

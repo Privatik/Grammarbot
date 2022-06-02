@@ -5,6 +5,51 @@ import com.io.model.Language
 interface Message{
     val ru: String
     val en: String
+    val callBack: String
+
+    companion object {
+        val StartMessage = Const(
+            ru = "Этот бот для изучения грамматики",
+            en = "This bot for learning grammar",
+            callBack = "startMessage"
+        )
+
+        val TranslateMessage = Const(
+            ru = "Перевести",
+            en = "Translate",
+            callBack = "tranlate"
+        )
+
+        val ChoiceLessonMessage = Const(
+            ru = "Выберите урок",
+            en = "Choice lesson",
+            callBack = "choiceLesson"
+        )
+
+        val StartLessonMessage = Const(
+            ru = "Начать урок",
+            en = "Start lesson",
+            callBack = "startLesson"
+        )
+
+        val FinishLessonMessage = Const(
+            ru = "Закончить урок",
+            en = "Finish lesson",
+            callBack = "finishLesson"
+        )
+
+        val BackLessonMessage = Const(
+            ru = "Назад",
+            en = "Back",
+            callBack = "back"
+        )
+    }
+
+    data class Const(
+        override val ru: String,
+        override val en: String,
+        override val callBack: String
+    ): Message
 
     fun get(language: Language):String{
         return when (language){
@@ -12,28 +57,4 @@ interface Message{
             Language.EN -> en
         }
     }
-}
-
-object StartMessage: Message {
-    override val ru: String
-        get() = "Этот бот для изучения грамматики"
-
-    override val en: String
-        get() = "This bot for learning grammar"
-}
-
-object TranslateMessage: Message {
-    override val ru: String
-        get() = "Перевести"
-
-    override val en: String
-        get() = "Translate"
-}
-
-object ChoiceLessonMessage: Message {
-    override val ru: String
-        get() = "Выберите урок"
-    override val en: String
-        get() = "Choice lesson"
-
 }

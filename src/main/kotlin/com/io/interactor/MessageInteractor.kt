@@ -87,7 +87,11 @@ class MessageInteractorImpl(
             MessageGroup.SECTION -> {
                 sectionCache.getRules(searchRule.second).map { it.asTypeMessage() }
             }
-            MessageGroup.LEARN,
+            MessageGroup.LEARN -> {
+                 taskCache.getTask(chatId, searchRule.second)
+                     .ifEmpty { taskCache.getRandomTaskFromSection(chatId, searchRule.second) }
+                     .map { it.asTypeMessage() }
+            }
             MessageGroup.DESCRIBE_ERROR ,
             MessageGroup.RESULT -> throw NoSuchMethodError()
         }
@@ -107,6 +111,13 @@ class MessageInteractorImpl(
 
     private suspend fun Entity.SectionRuleEntity.asTypeMessage(): TypeMessage{
         return TypeMessage.Section(
+            emptyMessageEntity,
+            this
+        )
+    }
+
+    private suspend fun Entity.Task.asTypeMessage(): TypeMessage{
+        return TypeMessage.Learn(
             emptyMessageEntity,
             this
         )

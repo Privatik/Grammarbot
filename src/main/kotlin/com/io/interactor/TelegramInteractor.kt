@@ -1,10 +1,11 @@
 package com.io.interactor
 
 import com.io.cache.entity.Entity
-import com.io.cache.entity.MessageEntity
+import com.io.cache.entity.UserEntity
 import com.io.model.TypeMessage
-import com.io.util.*
-import java.util.*
+import com.io.util.GetListRViaFuncT
+import com.io.util.GetMessageEntityViaIntToMessageGroup
+import com.io.util.GetUserEntity
 
 interface TelegramInteractor<Message, User> {
 
@@ -50,5 +51,4 @@ class TelegramInteractorImpl(
             messageInteractor.getMessages(chatId, it)
         }
     }
-
 }

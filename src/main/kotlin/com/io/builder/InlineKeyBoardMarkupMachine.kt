@@ -1,24 +1,23 @@
 package com.io.builder
 
-import com.io.cache.SectionCache
 import com.io.cache.entity.SectionEntity
 import com.io.model.Language
-import com.io.resourse.KeyboardMarkup
-import com.io.resourse.translateKeyboardMarkup
+import com.io.resourse.Message
+import com.io.resourse.createKeyboardMarkup
 import com.io.telegram.InlineKeyboardButton
 import com.io.telegram.InlineKeyboardMarkup
 import com.io.util.extends.inlineKeyBoardMarkup
-import org.koin.java.KoinJavaComponent.inject
 
 class InlineKeyBoardMarkupBuilder(
     private val currentLanguage: Language = Language.RU,
 ) {
     private val keyboardMarkups = mutableListOf<List<InlineKeyboardButton>>()
 
-    fun addTranslateButton(): InlineKeyBoardMarkupBuilder{
+    fun addButton(message: Message): InlineKeyBoardMarkupBuilder{
+        val keyBoardMarkup = createKeyboardMarkup(message)
         val button = InlineKeyboardButton(
-            text = translateKeyboardMarkup.text(currentLanguage),
-            callback_data = translateKeyboardMarkup.callbackData
+            text = keyBoardMarkup.text(currentLanguage),
+            callback_data = keyBoardMarkup.callbackData
         )
         keyboardMarkups.add(listOf(button))
         return this

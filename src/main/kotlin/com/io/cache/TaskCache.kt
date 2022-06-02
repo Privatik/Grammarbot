@@ -12,6 +12,6 @@ interface TaskCache {
     suspend fun saveTask(chatId: String, messageId: Int, taskId: Long, state: LessonState)
     suspend fun deleteMessageTask(messageId: Int, term: GetBooleanViaT<MessageToTask>)
 
-    suspend fun getRandomTaskFromSection(sectionId: String, state: LessonState): Task?
-    suspend fun getCurrentTask(messageId: Int): Task
+    suspend fun getRandomTaskFromSection(chatId: String, term: GetBooleanViaT<Entity.Task>): List<Task>
+    suspend fun getTask(chatId: String, term: GetBooleanViaT<Entity.Task>): List<Task>
 }

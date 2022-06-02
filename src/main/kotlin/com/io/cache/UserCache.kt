@@ -1,6 +1,5 @@
 package com.io.cache
 
-import com.io.cache.entity.MessageEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
 import com.io.model.UserState

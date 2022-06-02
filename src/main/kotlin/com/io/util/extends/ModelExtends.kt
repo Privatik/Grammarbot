@@ -1,7 +1,7 @@
 package com.io.util.extends
 
 import com.io.cache.entity.SectionEntity
-import com.io.cache.entity.SectionRuleEntity
+import com.io.cache.entity.Entity.SectionRuleEntity
 import com.io.cache.entity.UserEntity
 import com.io.model.Language
 import com.io.resourse.KeyboardMarkup
@@ -24,6 +24,8 @@ fun SectionEntity.createMessage():Message{
             get() = titleRu
         override val en: String
             get() = titleEn
+        override val callBack: String
+            get() = "${Resourse.section}${this@createMessage.id}"
 
     }
 }
@@ -34,13 +36,14 @@ fun SectionRuleEntity.createMessage():Message{
             get() = ruleRu
         override val en: String
             get() = ruleEn
-
+        override val callBack: String
+            get() = "${Resourse.section}${this@createMessage.id}"
     }
 }
 
 fun SectionEntity.inlineKeyBoardMarkup(currentLanguage: Language): InlineKeyboardButton {
     val message = createMessage()
-    val button = createKeyboardMarkup(message, "${Resourse.section}$id")
+    val button = createKeyboardMarkup(message)
     return button.inlineKeyBoardMarkup(currentLanguage)
 }
 

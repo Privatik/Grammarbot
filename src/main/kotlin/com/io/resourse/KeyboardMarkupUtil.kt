@@ -7,14 +7,9 @@ data class KeyboardMarkup(
     val callbackData: String?
 )
 
-fun createKeyboardMarkup(message: Message, callbackData: String): KeyboardMarkup{
+fun createKeyboardMarkup(message: Message): KeyboardMarkup{
     return KeyboardMarkup(
         text = message::get,
-        callbackData = callbackData
+        callbackData = message.callBack
     )
 }
-
-val translateKeyboardMarkup = KeyboardMarkup(
-    text = TranslateMessage::get,
-    callbackData = "translate"
-)
