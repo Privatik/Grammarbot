@@ -30,7 +30,7 @@ class TaskCacheImpl: TaskCache {
         )
     )
 
-    val taskWrite = listOf(
+    val tasksWrite = listOf(
         WriteTaskEntity(
             id = 3L,
             field = "Мое имя Иван",
@@ -45,6 +45,8 @@ class TaskCacheImpl: TaskCache {
         )
     )
 
+    val tasks = tasksPut + tasksWrite
+
 
     override suspend fun saveTask(chatId: String, messageId: Int, taskId: Long, state: LessonState) {
         messagesWithTask.add(
@@ -56,28 +58,15 @@ class TaskCacheImpl: TaskCache {
         messagesWithTask.removeIf { term(it) && messageId == it.messageId }
     }
 
-    override suspend fun getRandomTaskFromSection(chatId: String, term: GetBooleanViaT<Task>): List<Task> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun getTask(chatId: String, term: GetBooleanViaT<Task>): List<Task> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getRandomTaskFromSection(sectionId: String, state: LessonState): Task? {
-        val tasks = when (state){
-            LessonState.PUT -> tasksPut.filter { sectionId == it.sectionId }
-            LessonState.WRITE -> taskWrite.filter { sectionId == it.sectionId }
-        }
-
-        return tasks.getRandomItemOrNull()
+        return tasks.filter(term)
     }
 
     override suspend fun getCurrentTask(messageId: Int): Task {
         val message = messagesWithTask.find { it.messageId == messageId }!!
         return when (message.lessonState){
             LessonState.PUT -> tasksPut.find { message.taskId == it.id }!!
-            LessonState.WRITE -> taskWrite.find { message.taskId == it.id }!!
+            LessonState.WRITE -> tasksWrite.find { message.taskId == it.id }!!
         }
     }
 

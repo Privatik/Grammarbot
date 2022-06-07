@@ -1,5 +1,6 @@
 package com.io.cache.entity
 
+import com.io.model.LessonState
 import com.io.model.MessageGroup
 
 sealed interface Entity{
@@ -20,13 +21,16 @@ sealed interface Entity{
         abstract val sectionId: String
         abstract val field: String
         abstract val rightAnswer: String
+        abstract val state: LessonState
 
         data class WriteTaskEntity(
             override val id: Long,
             override val field: String,
             override val rightAnswer: String,
             override val sectionId: String
-        ): Task()
+        ): Task() {
+            override val state: LessonState = LessonState.WRITE
+        }
 
         data class PutTaskEntity(
             override val id: Long,
@@ -34,6 +38,8 @@ sealed interface Entity{
             val variants: List<String>,
             override val rightAnswer: String,
             override val sectionId: String
-        ): Task()
+        ): Task() {
+            override val state: LessonState = LessonState.PUT
+        }
     }
 }

@@ -89,7 +89,6 @@ class MessageInteractorImpl(
             }
             MessageGroup.LEARN -> {
                  taskCache.getTask(chatId, searchRule.second)
-                     .ifEmpty { taskCache.getRandomTaskFromSection(chatId, searchRule.second) }
                      .map { it.asTypeMessage() }
             }
             MessageGroup.DESCRIBE_ERROR ,
@@ -109,14 +108,14 @@ class MessageInteractorImpl(
         }
     }
 
-    private suspend fun Entity.SectionRuleEntity.asTypeMessage(): TypeMessage{
+    private fun Entity.SectionRuleEntity.asTypeMessage(): TypeMessage{
         return TypeMessage.Section(
             emptyMessageEntity,
             this
         )
     }
 
-    private suspend fun Entity.Task.asTypeMessage(): TypeMessage{
+    private fun Entity.Task.asTypeMessage(): TypeMessage{
         return TypeMessage.Learn(
             emptyMessageEntity,
             this

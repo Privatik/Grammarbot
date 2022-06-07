@@ -26,10 +26,16 @@ interface Message{
             callBack = "choiceLesson"
         )
 
-        val StartLessonMessage = Const(
-            ru = "Начать урок",
-            en = "Start lesson",
-            callBack = "startLesson"
+        val PutTaskMessage = Const(
+            ru = "Вставка",
+            en = "Put",
+            callBack = "putTask"
+        )
+
+        val WriteTaskMessage = Const(
+            ru = "Перевод",
+            en = "Translate",
+            callBack = "writeTask"
         )
 
         val FinishLessonMessage = Const(

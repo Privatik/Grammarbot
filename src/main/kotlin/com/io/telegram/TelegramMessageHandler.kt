@@ -4,13 +4,11 @@ import com.io.cache.entity.Entity
 import com.io.cache.entity.UserEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
+import com.io.model.LessonState
 import com.io.model.TypeMessage
 import com.io.resourse.CommandConst
 import com.io.resourse.Resourse
-import com.io.telegram.command.editTranslateMessage
-import com.io.telegram.command.sendSectionMessage
-import com.io.telegram.command.sendStartMessage
-import com.io.telegram.command.stepBack
+import com.io.telegram.command.*
 import com.io.util.GetListRViaFuncT
 import com.io.util.extends.anotherLanguage
 import com.io.util.extends.isSection
@@ -85,9 +83,15 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
             )
         }
         return when (callbackQuery.data){
-            com.io.resourse.Message.StartLessonMessage.callBack -> stepBack(
+            com.io.resourse.Message.PutTaskMessage.callBack -> sendTaskMessage(
                 user,
-                messageIds
+                messageIds,
+                LessonState.PUT
+            )
+            com.io.resourse.Message.WriteTaskMessage.callBack -> sendTaskMessage(
+                user,
+                messageIds,
+                LessonState.WRITE
             )
             com.io.resourse.Message.BackLessonMessage.callBack -> stepBack(
                 user,
