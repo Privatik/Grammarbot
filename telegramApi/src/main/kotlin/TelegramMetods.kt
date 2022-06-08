@@ -15,6 +15,9 @@ sealed class TelegramRequest(val path: String){
     ): TelegramBehaviour.Send =
         TelegramBehaviour.Send(name,this, delay)
 
+    fun Pair<TelegramBehaviour, List<CreateTelegramBehaviour>>.asOrderSendBehaviour(): TelegramBehaviour.OrderSend =
+        TelegramBehaviour.OrderSend(first, second)
+
     //Setting
 
     object GetWebhookRequest: TelegramRequest("getWebhookInfo")

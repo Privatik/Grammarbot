@@ -9,11 +9,14 @@ import com.io.model.MessageGroup
 import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.telegram.TelegramMessageHandler
+import com.io.telegram.deleteMessage
 import com.io.telegram.sendMessage
 import com.io.util.GetListRViaFuncT
+import com.io.util.extends.createMessage
 import com.io.util.extends.messageTermWithCheckChatId
 import com.io.util.extends.taskTerm
 import com.io.util.getMessage
+import com.io.util.getTaskReplyKeyboardMarkup
 import kotlin.random.Random
 
 suspend fun sendTaskMessage(
@@ -25,19 +28,40 @@ suspend fun sendTaskMessage(
     val chatId = userEntity.chatId
     val language = userEntity.currentLanguage
 
-    val filterMessage = messageTermWithCheckChatId(chatId, MessageGroup.START){
+    val filterMessage = messageTermWithCheckChatId(chatId){
         it.group == MessageGroup.SECTION
     }
 
-    val message = messageIds(filterMessage).first() as TypeMessage.Section
+    val sectionMessage = messageIds(filterMessage).first() as TypeMessage.Section
 
     val filterTask = taskTerm {
-        it.state == state && it.sectionId == message.section.id
+        it.state == state && it.sectionId == sectionMessage.section.id
     }
 
     val task = messageIds(filterTask).let {
         it[Random.nextInt(it.size)] as TypeMessage.Learn
     }
+
+    val deleteLastSection = TelegramMessageHandler.Result(
+        chatId = chatId,
+        behaviour = deleteMessage(
+            chat_id = chatId,
+            messageId = sectionMessage.message.id
+        ).asDeleteBehaviour(MessageGroup.NONE.name),
+        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
+    )
+
+    val newSectionMessage = TelegramMessageHandler.Result(
+        chatId = chatId,
+        behaviour = sendMessage(
+            chat_id = chatId,
+            text = sectionMessage.section.createMessage().get(language),
+            replyMarkup = getTaskReplyKeyboardMarkup(language)
+        ).asSendBehaviour(MessageGroup.SECTION.name),
+        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsSection(sectionMessage.section.id)
+    )
 
     val sendTask = TelegramMessageHandler.Result(
         chatId = chatId,
@@ -49,5 +73,9 @@ suspend fun sendTaskMessage(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsTask(task.task.id, state)
     )
 
-    return listOf(sendTask)
+    return listOf(
+        deleteLastSection,
+        newSectionMessage,
+        sendTask
+    )
 }

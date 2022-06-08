@@ -10,15 +10,15 @@ import com.io.telegram.InlineKeyboardMarkup
 
 fun getSectionMenuInlineKeyboardMarkup(language: Language, sections: List<SectionEntity>): InlineKeyboardMarkup {
     return InlineKeyBoardMarkupBuilder(language)
-        .addButton(Message.TranslateMessage)
+        .addButtons(Message.TranslateMessage)
         .addSectionButton(sections)
         .build()
 }
 
 fun getSectionInlineKeyboardMarkup(language: Language): InlineKeyboardMarkup {
     return InlineKeyBoardMarkupBuilder(language)
-        .addButton(Message.TranslateMessage)
-        .addButton(Message.BackLessonMessage)
+        .addButtons(Message.TranslateMessage)
+        .addButtons(Message.BackLessonMessage)
         .addButtons(Message.PutTaskMessage, Message.WriteTaskMessage)
         .build()
 }

@@ -5,6 +5,7 @@ import com.io.cache.SectionCache
 import com.io.cache.TaskCache
 import com.io.cache.entity.Entity
 import com.io.model.LessonState
+import com.io.model.MessageFilter
 import com.io.model.MessageGroup
 import com.io.model.TypeMessage
 import com.io.resourse.emptyMessageEntity
@@ -21,7 +22,7 @@ interface MessageInteractor<T>{
 
     suspend fun getMessages(
         chatId: String,
-        searchRule: Pair<MessageGroup, GetBooleanViaT<Entity>>
+        searchRule: Pair<MessageFilter, GetBooleanViaT<Entity>>
     ): List<TypeMessage>
 
     sealed class BehaviorForMessages {
@@ -74,25 +75,21 @@ class MessageInteractorImpl(
 
     override suspend fun getMessages(
         chatId: String,
-        searchRule: Pair<MessageGroup, GetBooleanViaT<Entity>>
+        searchRule: Pair<MessageFilter, GetBooleanViaT<Entity>>
     ): List<TypeMessage> {
         return when(searchRule.first){
-            MessageGroup.NONE,
-            MessageGroup.START,
-            MessageGroup.CHOICE_SECTION -> {
+            MessageFilter.MESSAGE -> {
                 messageCache.getMessages(chatId, searchRule.second)
                     .ifEmpty { listOf(emptyMessageEntity.copy(group = MessageGroup.CHOICE_SECTION)) }
                     .map { it.asTypeMessage() }
             }
-            MessageGroup.SECTION -> {
+            MessageFilter.SECTION -> {
                 sectionCache.getRules(searchRule.second).map { it.asTypeMessage() }
             }
-            MessageGroup.LEARN -> {
-                 taskCache.getTask(chatId, searchRule.second)
-                     .map { it.asTypeMessage() }
+            MessageFilter.TASK -> {
+                taskCache.getTask(chatId, searchRule.second)
+                    .map { it.asTypeMessage() }
             }
-            MessageGroup.DESCRIBE_ERROR ,
-            MessageGroup.RESULT -> throw NoSuchMethodError()
         }
     }
 

@@ -73,6 +73,7 @@ class TelegramHttpClient(
                 telegramBehaviour.deleteMessageId,
                 telegramBehaviour.delay
             )
+            is TelegramBehaviour.OrderSend -> TODO()
         }
     }
 
@@ -92,11 +93,25 @@ class TelegramHttpClient(
         return coroutineScope.async { TelegramResponse(ok = true, result = MessageIdResponse(message_id = deleteMessageid)) }
     }
 
-    private suspend inline fun <reified T: Any> requestAsDeferred(
+    private suspend inline fun requestAsDeferred(
         coroutineScope: CoroutineScope,
         body: TelegramRequest,
         time: Long = 0
-    ): Deferred<TelegramResponse<T>>  {
+    ): Deferred<TelegramResponse<MessageIdResponse>>  {
+        delay(time)
+        return coroutineScope.async {
+            client.post("$basePath/${body.path}") {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.body()
+        }
+    }
+
+    private suspend inline fun orderRequestAsDeferred(
+        coroutineScope: CoroutineScope,
+        bodies: List<TelegramRequest>,
+        time: Long = 0
+    ): Deferred<TelegramResponse<MessageIdResponse>>  {
         delay(time)
         return coroutineScope.async {
             client.post("$basePath/${body.path}") {

@@ -28,7 +28,7 @@ suspend fun stepBack(
     val language = userEntity.currentLanguage
 
     val filterSection = messageTermWithCheckChatId(chatId){ MessageGroup.SECTION == it.group  }
-    val filterSectionMenu = messageTermWithCheckChatId(chatId, MessageGroup.CHOICE_SECTION){ MessageGroup.CHOICE_SECTION == it.group  }
+    val filterSectionMenu = messageTermWithCheckChatId(chatId){ MessageGroup.CHOICE_SECTION == it.group  }
     val sectionMessage = messageIds(filterSection).first()
     val sectionMenuMessage = messageIds(filterSectionMenu).first() as TypeMessage.SectionMenu
 

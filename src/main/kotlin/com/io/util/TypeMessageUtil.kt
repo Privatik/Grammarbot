@@ -12,6 +12,7 @@ import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.resourse.Message
 import com.io.telegram.InlineKeyboardMarkup
+import com.io.telegram.ReplyKeyboard
 import com.io.util.extends.createMessage
 
 fun TypeMessage.getMessage(): Message{
@@ -30,7 +31,11 @@ fun TypeMessage.getReplyKeyboard(state: UserState, language: Language): InlineKe
                 getSectionMenuInlineKeyboardMarkup(language,(this as TypeMessage.SectionMenu).sections)
             } else null
         }
-        MessageGroup.SECTION -> getSectionInlineKeyboardMarkup(language)
+        MessageGroup.SECTION -> {
+            if (state != UserState.LEARN){
+                getSectionInlineKeyboardMarkup(language)
+            } else null
+        }
         else -> null
     }
 }

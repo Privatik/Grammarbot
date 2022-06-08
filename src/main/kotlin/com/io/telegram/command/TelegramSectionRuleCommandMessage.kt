@@ -27,8 +27,7 @@ suspend fun sendSectionMessage(
     val language = userEntity.currentLanguage
 
     val filterChoiceMessage = messageTermWithCheckChatId(
-        chatId,
-        MessageGroup.CHOICE_SECTION
+        chatId
     ){
         it.group == MessageGroup.CHOICE_SECTION
     }

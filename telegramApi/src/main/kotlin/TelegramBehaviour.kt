@@ -7,6 +7,11 @@ sealed class TelegramBehaviour(val name: String){
         val delay: Long = 0
     ): TelegramBehaviour(cName)
 
+    data class OrderSend(
+        val init: TelegramBehaviour,
+        val behaviours: List<CreateTelegramBehaviour>
+    ) : TelegramBehaviour(Constant.ORDER_NAME)
+
     data class Delete(
         val cName: String,
         val request: TelegramRequest,
