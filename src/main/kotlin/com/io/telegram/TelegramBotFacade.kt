@@ -35,16 +35,35 @@ class TelegramBotFacade(
 
     private suspend fun List<TelegramMessageHandler.Result>.asTelegramResults(): List<TelegramResult>{
         return map { result ->
-            val methodForMessage = telegramInteractor.processingMessage(result.chatId, result.finishBehaviorMessage)
-            val methodForUser = telegramInteractor.processingUser(result.chatId, result.finishBehaviorUser)
+            when (result){
+                is TelegramMessageHandler.Result.Delay -> result.asTelegramResult()
+                is TelegramMessageHandler.Result.Ordinary -> result.asTelegramResult()
+            }
 
-            TelegramResult(
-                behaviour = result.behaviour,
-                doFinish = {
-                    methodForMessage(it.first, it.second.asMessageGroup())
-                    methodForUser()
-                }
-            )
         }
+    }
+
+    private suspend fun TelegramMessageHandler.Result.Ordinary.asTelegramResult(): TelegramResult.Ordinary {
+        val methodForMessage = telegramInteractor.processingMessage(chatId, finishBehaviorMessage)
+        val methodForUser = telegramInteractor.processingUser(chatId, finishBehaviorUser)
+
+        return TelegramResult.Ordinary(
+            behaviour = behaviour,
+            doFinish = {
+                methodForMessage(it.first, it.second.asMessageGroup())
+                methodForUser()
+            }
+        )
+    }
+
+    private suspend fun TelegramMessageHandler.Result.Delay.asTelegramResult(): TelegramResult.Delay {
+        val ordinary = behaviour.asTelegramResult()
+
+        return TelegramResult.Delay(
+            behaviour = ordinary,
+            behaviours = behaviours.map { getResultOrdinary ->
+                { id -> getResultOrdinary(id).asTelegramResult() }
+            }
+        )
     }
 }

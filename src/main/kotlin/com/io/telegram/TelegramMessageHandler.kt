@@ -26,12 +26,21 @@ interface TelegramMessageHandler {
         messageIds: GetListRViaFuncT<Entity, TypeMessage>
     ): List<Result>?
 
-    data class Result(
-        val chatId: String,
-        val behaviour: TelegramBehaviour,
-        val finishBehaviorUser: UserInteractor.BehaviorForUser,
-        val finishBehaviorMessage: MessageInteractor.BehaviorForMessages
-    )
+    sealed interface Result{
+        data class Ordinary(
+            val chatId: String,
+            val behaviour: TelegramBehaviour,
+            val finishBehaviorUser: UserInteractor.BehaviorForUser,
+            val finishBehaviorMessage: MessageInteractor.BehaviorForMessages
+        ): Result
+
+        data class Delay(
+            val behaviour: Ordinary,
+            val behaviours: List<suspend (Int) -> Ordinary>,
+        ): Result
+    }
+
+
 }
 
 internal class TelegramMessageHandlerImpl: TelegramMessageHandler {

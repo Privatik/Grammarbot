@@ -19,10 +19,29 @@ class TelegramBot(
 
     suspend fun onWebhookUpdateReceived(update: com.io.telegram.Update) {
         facade.handleUpdate(update)?.also { results ->
-            method.sendMessageByBehaviour(results.map { it.behaviour })
+            val bodies = results.map {
+                when (it){
+                    is TelegramResult.Delay -> it.asOrderSendBehaviour()
+                    is TelegramResult.Ordinary -> it.behaviour
+                }
+            }
+
+            method.sendMessageByBehaviour(bodies)
                 .forEachIndexed { index, pair ->
-                    val currentResult = results[index]
-                    currentResult.doFinish(pair)
+                    when (val currentResult = results[index]){
+                        is TelegramResult.Delay -> {
+                            currentResult.behaviour.doFinish(pair)
+                            var nextPair = pair
+                            currentResult.behaviours.forEach { getOrdinary ->
+                                val ordinary = getOrdinary(nextPair.first)
+                                ordinary.doFinish(nextPair)
+                                nextPair =
+                            }
+                        }
+                        is TelegramResult.Ordinary -> {
+                            currentResult.doFinish(pair)
+                        }
+                    }
                 }
         }
     }

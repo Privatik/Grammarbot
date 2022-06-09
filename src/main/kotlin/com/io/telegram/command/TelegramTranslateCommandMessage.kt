@@ -29,7 +29,7 @@ suspend fun editTranslateMessage(
     } else listOf<TelegramMessageHandler.Result>()
 
     return newMessageIds.mapIndexed { index, typeMessage ->
-        TelegramMessageHandler.Result(
+        TelegramMessageHandler.Result.Ordinary(
             chatId = chatId,
             behaviour = editMessageText(
                 chat_id = chatId,
@@ -66,7 +66,7 @@ private fun createFinishMessages(
 ) : List<TelegramMessageHandler.Result>{
     val chatId = userEntity.chatId
 
-    val supportMessageWithFinishButton = TelegramMessageHandler.Result(
+    val supportMessageWithFinishButton = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
@@ -77,8 +77,8 @@ private fun createFinishMessages(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
     )
 
-    val deleteSupportMessageWithFinishButton: CreateTelegramMessageHandlerResult = {
-        TelegramMessageHandler.Result(
+    val deleteMessageWithButton: (Int) -> TelegramMessageHandler.Result.Ordinary = {
+        TelegramMessageHandler.Result.Ordinary(
             chatId = chatId,
             behaviour = deleteMessage(
                 chat_id = chatId,
@@ -89,21 +89,10 @@ private fun createFinishMessages(
         )
     }
 
-    val l = TelegramMessageHandler.Result(
-        chatId = chatId,
-        behaviour = CreateTelegramBehaviour{
-
-        }(),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
+    val delay  = TelegramMessageHandler.Result.Delay(
+        behaviour = supportMessageWithFinishButton,
+        behaviours = listOf(deleteMessageWithButton)
     )
 
-//    return TelegramMessageHandler.Result(
-//        chatId = chatId,
-//        behaviour = (supportMessageWithFinishButton to listOf(deleteSupportMessageWithFinishButton)),
-//        finishBehaviorUser = if (index == 0) UserInteractor.BehaviorForUser.Update(language = language)
-//        else UserInteractor.BehaviorForUser.None,
-//        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
-//    )
-    return emptyList()
+    return listOf(delay)
 }
