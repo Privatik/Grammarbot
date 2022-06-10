@@ -16,6 +16,9 @@ fun String.asMessageGroup(): MessageGroup{
         MessageGroup.CHOICE_SECTION.name -> MessageGroup.CHOICE_SECTION
         MessageGroup.SECTION.name -> MessageGroup.SECTION
         MessageGroup.NONE.name -> MessageGroup.NONE
-        else -> error("Don't find group")
+        MessageGroup.LEARN.name -> MessageGroup.LEARN
+        MessageGroup.DESCRIBE_ERROR.name -> MessageGroup.DESCRIBE_ERROR
+        MessageGroup.RESULT.name -> MessageGroup.RESULT
+        else -> throw NoSuchMethodError()
     }
 }

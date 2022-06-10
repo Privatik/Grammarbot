@@ -15,7 +15,6 @@ import com.io.util.GetListRViaFuncT
 import com.io.util.extends.createMessage
 import com.io.util.extends.messageTermWithCheckChatId
 import com.io.util.extends.taskTerm
-import com.io.util.getMessage
 import com.io.util.getTaskReplyKeyboardMarkup
 import kotlin.random.Random
 
@@ -38,11 +37,11 @@ suspend fun sendTaskMessage(
         it.state == state && it.sectionId == sectionMessage.section.id
     }
 
-    val task = messageIds(filterTask).let {
+    val taskMessage = messageIds(filterTask).let {
         it[Random.nextInt(it.size)] as TypeMessage.Learn
     }
 
-    val deleteLastSection = TelegramMessageHandler.Result(
+    val deleteLastSection = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = deleteMessage(
             chat_id = chatId,
@@ -52,7 +51,7 @@ suspend fun sendTaskMessage(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
     )
 
-    val newSectionMessage = TelegramMessageHandler.Result(
+    val newSectionMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
@@ -63,14 +62,14 @@ suspend fun sendTaskMessage(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsSection(sectionMessage.section.id)
     )
 
-    val sendTask = TelegramMessageHandler.Result(
+    val sendTask = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
-            text = task.getMessage().get(language)
+            text = taskMessage.task.createMessage().get(language),
         ).asSendBehaviour(MessageGroup.LEARN.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.Update(state = UserState.LEARN),
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsTask(task.task.id, state)
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsTask(taskMessage.task.id, state)
     )
 
     return listOf(

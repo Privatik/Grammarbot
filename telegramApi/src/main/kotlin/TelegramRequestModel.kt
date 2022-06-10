@@ -14,3 +14,14 @@ data class MessageIdResponse(
 )
 
 object EmptyResponse
+
+sealed interface TelegramResponseBody {
+    data class Ordinary(
+        val id: Int,
+        val name: String
+    ): TelegramResponseBody
+
+    data class Order(
+        val bodies: List<Ordinary>
+    ): TelegramResponseBody
+}

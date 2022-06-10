@@ -9,7 +9,7 @@ sealed class TelegramBehaviour(val name: String){
 
     data class OrderSend(
         val init: TelegramBehaviour,
-        val behaviours: List<CreateTelegramBehaviour>
+        val behaviours: List<Pair<(suspend (Int) -> TelegramBehaviour), String>>
     ) : TelegramBehaviour(Constant.ORDER_NAME)
 
     data class Delete(

@@ -36,7 +36,7 @@ class TelegramBotFacade(
     private suspend fun List<TelegramMessageHandler.Result>.asTelegramResults(): List<TelegramResult>{
         return map { result ->
             when (result){
-                is TelegramMessageHandler.Result.Delay -> result.asTelegramResult()
+                is TelegramMessageHandler.Result.Order -> result.asTelegramResult()
                 is TelegramMessageHandler.Result.Ordinary -> result.asTelegramResult()
             }
 
@@ -56,14 +56,43 @@ class TelegramBotFacade(
         )
     }
 
-    private suspend fun TelegramMessageHandler.Result.Delay.asTelegramResult(): TelegramResult.Delay {
+    private suspend fun TelegramMessageHandler.Result.Order.asTelegramResult(): TelegramResult.Order {
         val ordinary = behaviour.asTelegramResult()
 
-        return TelegramResult.Delay(
-            behaviour = ordinary,
-            behaviours = behaviours.map { getResultOrdinary ->
-                { id -> getResultOrdinary(id).asTelegramResult() }
+        fun ((Int) -> TelegramBehaviour).asBody(): suspend (Int) -> TelegramResult.Ordinary {
+            return {
+                TelegramResult.Ordinary(
+                    behaviour = this(it),
+                    doFinish = { }
+                )
             }
+        }
+
+        val orderBehaviours = behaviours.map {
+            it.behaviour.asBody() to it.name
+        }
+
+        val doFinish: suspend ( List<Pair<Int, String>>) -> Unit = {
+            it.forEachIndexed { index, pair ->
+                if (index == 0){
+                    ordinary.doFinish(pair)
+                } else {
+                    telegramInteractor.processingMessage(behaviour.chatId, behaviours[index - 1].finishBehaviorMessage)
+                        .apply {
+                            this(pair.first, pair.second.asMessageGroup())
+                        }
+                    telegramInteractor.processingUser(behaviour.chatId, behaviours[index - 1].finishBehaviorUser)
+                        .apply {
+                            this()
+                        }
+                }
+            }
+        }
+
+        return TelegramResult.Order(
+            behaviour = ordinary,
+            behaviours = orderBehaviours,
+            doFinish = doFinish
         )
     }
 }

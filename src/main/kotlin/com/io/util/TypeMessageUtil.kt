@@ -20,6 +20,7 @@ fun TypeMessage.getMessage(): Message{
         MessageGroup.START -> Message.StartMessage
         MessageGroup.CHOICE_SECTION -> Message.ChoiceLessonMessage
         MessageGroup.SECTION -> (this as TypeMessage.Section).section.createMessage()
+        MessageGroup.LEARN -> (this as TypeMessage.Learn).task.createMessage()
         else -> throw NoSuchMethodError()
     }
 }

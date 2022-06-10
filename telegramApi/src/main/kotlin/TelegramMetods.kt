@@ -15,9 +15,6 @@ sealed class TelegramRequest(val path: String){
     ): TelegramBehaviour.Send =
         TelegramBehaviour.Send(name,this, delay)
 
-    fun Pair<TelegramBehaviour, List<CreateTelegramBehaviour>>.asOrderSendBehaviour(): TelegramBehaviour.OrderSend =
-        TelegramBehaviour.OrderSend(first, second)
-
     //Setting
 
     object GetWebhookRequest: TelegramRequest("getWebhookInfo")
@@ -82,9 +79,24 @@ class TelegramMethod(
         return jsonSetting.decodeFromString(TelegramResponse.serializer(serializer), json).result
     }
 
-    suspend fun sendMessageByBehaviour(bodies: List<TelegramBehaviour>): List<Pair<Int, String>> {
+    suspend fun sendMessageByBehaviour(bodies: List<TelegramBehaviour>): List<TelegramResponseBody> {
         return bodies.map { body -> client.sendMessageFromBehavior(body) }.awaitAll().mapIndexed { index, telegramResponse ->
-            telegramResponse.result.message_id to bodies[index].name
+            when (val body = bodies[index]){
+                is TelegramBehaviour.Send,
+                is TelegramBehaviour.Delete -> {
+                    TelegramResponseBody.Ordinary(telegramResponse.first().result.message_id, body.name)
+                }
+                is TelegramBehaviour.OrderSend -> {
+                    TelegramResponseBody.Order(
+                        telegramResponse.mapIndexed { indexChild, telegramResponseChild ->
+                            TelegramResponseBody.Ordinary(
+                                telegramResponseChild.result.message_id,
+                                if (indexChild == 0) body.init.name else body.behaviours[index - 1].second
+                            )
+                        }
+                    )
+                }
+            }
         }
     }
     

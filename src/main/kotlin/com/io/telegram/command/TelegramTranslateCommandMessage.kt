@@ -4,10 +4,8 @@ import com.io.cache.entity.Entity
 import com.io.cache.entity.UserEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
-import com.io.model.Language
-import com.io.model.MessageGroup
-import com.io.model.TypeMessage
-import com.io.model.UserState
+import com.io.model.*
+import com.io.resourse.Message.Companion.TranslateMessage
 import com.io.telegram.*
 import com.io.util.*
 import com.io.util.extends.messageTermWithCheckChatId
@@ -70,29 +68,29 @@ private fun createFinishMessages(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
-            text = "⁠",
+            text = TranslateMessage.get(language),
             replyMarkup = getTaskReplyKeyboardMarkup(language)
         ).asSendBehaviour(MessageGroup.NONE.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.None,
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
     )
 
-    val deleteMessageWithButton: (Int) -> TelegramMessageHandler.Result.Ordinary = {
-        TelegramMessageHandler.Result.Ordinary(
-            chatId = chatId,
-            behaviour = deleteMessage(
+    val deleteMessage = MultiBehaviours(
+        behaviour = { id: Int ->
+            deleteMessage(
                 chat_id = chatId,
-                messageId = it,
-            ).asDeleteBehaviour(MessageGroup.NONE.name),
-            finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-            finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
-        )
-    }
-
-    val delay  = TelegramMessageHandler.Result.Delay(
-        behaviour = supportMessageWithFinishButton,
-        behaviours = listOf(deleteMessageWithButton)
+                messageId = id,
+            ).asDeleteBehaviour(MessageGroup.NONE.name)
+        },
+        name = MessageGroup.NONE.name,
+        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
     )
 
-    return listOf(delay)
+    val order = TelegramMessageHandler.Result.Order(
+        behaviour = supportMessageWithFinishButton,
+        behaviours = listOf(deleteMessage)
+    )
+
+    return listOf(order)
 }

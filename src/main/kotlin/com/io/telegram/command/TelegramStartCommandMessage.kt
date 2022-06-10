@@ -30,7 +30,7 @@ suspend fun sendStartMessage(
     val messages = messageIds(filter)
 
     if (messages.size > 1){
-        val deleteMessage = TelegramMessageHandler.Result(
+        val deleteMessage = TelegramMessageHandler.Result.Ordinary(
             chatId = chatId,
             behaviour = deleteMessage(
                 chat_id = chatId,
@@ -44,7 +44,7 @@ suspend fun sendStartMessage(
 
     val sectionMenu = messages.first() as TypeMessage.SectionMenu
 
-    val startMessage = TelegramMessageHandler.Result(
+    val startMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour =  sendMessage(
             chat_id = chatId,
@@ -54,7 +54,7 @@ suspend fun sendStartMessage(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Save
     )
 
-    val choiceLessonMessage = TelegramMessageHandler.Result(
+    val choiceLessonMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,

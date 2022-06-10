@@ -6,18 +6,23 @@ sealed interface TelegramResult{
         val doFinish: suspend (messageIds: Pair<Int, String>) -> Unit
     ): TelegramResult
 
-    data class Delay(
+    data class Order(
         val behaviour: Ordinary,
-        val behaviours: List<suspend (Int) -> Ordinary>,
+        val behaviours: List<Pair<suspend (Int) -> Ordinary,String>>,
+        val doFinish: suspend (messageIds: List<Pair<Int, String>>) -> Unit
     ): TelegramResult {
         fun asOrderSendBehaviour(): TelegramBehaviour.OrderSend{
             return TelegramBehaviour.OrderSend(
                 init = behaviour.behaviour,
-                behaviours = behaviours.map { getOrdinary ->
-                    { id -> getOrdinary(id).behaviour }
+                behaviours = behaviours.map {
+                    it.first.getBehaviour() to it.second
                 }
             )
         }
     }
+}
+
+private fun (suspend (Int) -> TelegramResult.Ordinary).getBehaviour(): suspend (Int) -> TelegramBehaviour {
+    return { this(it).behaviour }
 }
 

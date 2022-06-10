@@ -11,7 +11,7 @@ typealias GetMessageEntityViaIntToMessageGroup = suspend (messageId: Int, group:
 typealias GetUserEntity = suspend () -> UserEntity?
 typealias GetBooleanViaT<T> = (T) -> Boolean
 
-typealias GetListRViaFuncT<T, R> = suspend (Pair<MessageFilter,GetBooleanViaT<T>>) -> List<R>
+typealias GetListRViaFuncT<T, R> = suspend (Pair<MessageFilter, GetBooleanViaT<T>>) -> List<R>
 
 typealias GetString = suspend () -> String
 

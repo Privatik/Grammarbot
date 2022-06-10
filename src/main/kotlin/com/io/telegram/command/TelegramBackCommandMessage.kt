@@ -32,7 +32,7 @@ suspend fun stepBack(
     val sectionMessage = messageIds(filterSection).first()
     val sectionMenuMessage = messageIds(filterSectionMenu).first() as TypeMessage.SectionMenu
 
-    val startMessage = TelegramMessageHandler.Result(
+    val startMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = deleteMessage(
             chat_id = chatId,
@@ -42,7 +42,7 @@ suspend fun stepBack(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
     )
 
-    val choiceLessonMessage = TelegramMessageHandler.Result(
+    val choiceLessonMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,

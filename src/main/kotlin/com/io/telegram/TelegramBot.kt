@@ -21,25 +21,21 @@ class TelegramBot(
         facade.handleUpdate(update)?.also { results ->
             val bodies = results.map {
                 when (it){
-                    is TelegramResult.Delay -> it.asOrderSendBehaviour()
+                    is TelegramResult.Order -> it.asOrderSendBehaviour()
                     is TelegramResult.Ordinary -> it.behaviour
                 }
             }
 
             method.sendMessageByBehaviour(bodies)
-                .forEachIndexed { index, pair ->
-                    when (val currentResult = results[index]){
-                        is TelegramResult.Delay -> {
-                            currentResult.behaviour.doFinish(pair)
-                            var nextPair = pair
-                            currentResult.behaviours.forEach { getOrdinary ->
-                                val ordinary = getOrdinary(nextPair.first)
-                                ordinary.doFinish(nextPair)
-                                nextPair =
-                            }
+                .forEachIndexed { index, body ->
+                    when(body){
+                        is TelegramResponseBody.Order -> {
+                            val behaviour = results[index] as TelegramResult.Order
+                            behaviour.doFinish(body.bodies.map { it.id to it.name })
                         }
-                        is TelegramResult.Ordinary -> {
-                            currentResult.doFinish(pair)
+                        is TelegramResponseBody.Ordinary -> {
+                            val behaviour = results[index] as TelegramResult.Ordinary
+                            behaviour.doFinish(body.id to body.name)
                         }
                     }
                 }

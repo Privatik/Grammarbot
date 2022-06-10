@@ -1,5 +1,6 @@
 package com.io.util.extends
 
+import com.io.cache.entity.Entity
 import com.io.cache.entity.SectionEntity
 import com.io.cache.entity.Entity.SectionRuleEntity
 import com.io.cache.entity.UserEntity
@@ -40,6 +41,18 @@ fun SectionRuleEntity.createMessage():Message{
             get() = "${Resourse.section}${this@createMessage.id}"
     }
 }
+
+fun Entity.Task.createMessage():Message{
+    return object : Message {
+        override val ru: String
+            get() = this@createMessage.field
+        override val en: String
+            get() = this@createMessage.field
+        override val callBack: String
+            get() = "${Resourse.task}${this@createMessage.id}"
+    }
+}
+
 
 fun SectionEntity.inlineKeyBoardMarkup(currentLanguage: Language): InlineKeyboardButton {
     val message = createMessage()

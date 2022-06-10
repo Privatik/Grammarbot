@@ -60,7 +60,7 @@ class TelegramHttpClient(
 
     suspend fun sendMessageFromBehavior(
         telegramBehaviour: TelegramBehaviour
-    ): Deferred<TelegramResponse<MessageIdResponse>> = withContext(Dispatchers.IO) {
+    ): Deferred<List<TelegramResponse<MessageIdResponse>>> = withContext(Dispatchers.IO) {
         return@withContext when (telegramBehaviour){
             is TelegramBehaviour.Send -> requestAsDeferred(
                 this,
@@ -73,7 +73,11 @@ class TelegramHttpClient(
                 telegramBehaviour.deleteMessageId,
                 telegramBehaviour.delay
             )
-            is TelegramBehaviour.OrderSend -> TODO()
+            is TelegramBehaviour.OrderSend -> orderRequestAsDeferred(
+                this,
+                telegramBehaviour.init,
+                telegramBehaviour.behaviours.map { it.first },
+            )
         }
     }
 
@@ -82,7 +86,7 @@ class TelegramHttpClient(
         body: TelegramRequest,
         deleteMessageid: Int,
         time: Long = 0
-    ): Deferred<TelegramResponse<MessageIdResponse>>  {
+    ): Deferred<List<TelegramResponse<MessageIdResponse>>>  {
         delay(time)
         coroutineScope.launch {
             client.post("$basePath/${body.path}") {
@@ -90,35 +94,42 @@ class TelegramHttpClient(
                 setBody(body)
             }
         }
-        return coroutineScope.async { TelegramResponse(ok = true, result = MessageIdResponse(message_id = deleteMessageid)) }
+        return coroutineScope.async { listOf(TelegramResponse(ok = true, result = MessageIdResponse(message_id = deleteMessageid))) }
     }
 
     private suspend inline fun requestAsDeferred(
         coroutineScope: CoroutineScope,
         body: TelegramRequest,
         time: Long = 0
-    ): Deferred<TelegramResponse<MessageIdResponse>>  {
+    ): Deferred<List<TelegramResponse<MessageIdResponse>>> {
         delay(time)
         return coroutineScope.async {
-            client.post("$basePath/${body.path}") {
-                contentType(ContentType.Application.Json)
-                setBody(body)
-            }.body()
+            listOf(
+                client.post("$basePath/${body.path}") {
+                    contentType(ContentType.Application.Json)
+                    setBody(body)
+                }.body()
+            )
         }
     }
 
     private suspend inline fun orderRequestAsDeferred(
         coroutineScope: CoroutineScope,
-        bodies: List<TelegramRequest>,
-        time: Long = 0
-    ): Deferred<TelegramResponse<MessageIdResponse>>  {
-        delay(time)
-        return coroutineScope.async {
-            client.post("$basePath/${body.path}") {
-                contentType(ContentType.Application.Json)
-                setBody(body)
-            }.body()
+        body: TelegramBehaviour,
+        bodies: List<suspend (Int) -> TelegramBehaviour>,
+    ): Deferred<List<TelegramResponse<MessageIdResponse>>>  {
+        val result = mutableListOf<TelegramResponse<MessageIdResponse>>()
+
+        val initMessage = sendMessageFromBehavior(body)
+
+        val lastMessage = bodies.fold(initMessage){ deaf, funcBody ->
+            val answer = deaf.await().first()
+            result.add(answer)
+            val nextBody = funcBody(answer.result.message_id)
+            sendMessageFromBehavior(nextBody)
         }
+
+        return coroutineScope.async { result + lastMessage.await()}
     }
     
 }

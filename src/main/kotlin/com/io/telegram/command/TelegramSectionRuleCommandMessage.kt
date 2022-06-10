@@ -39,7 +39,7 @@ suspend fun sendSectionMessage(
     val message = messageIds(filterChoiceMessage).first()
     val messageSection = messageIds(filterSection).first() as TypeMessage.Section
 
-    val choiceMessage = TelegramMessageHandler.Result(
+    val choiceMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = deleteMessage(
             chat_id = chatId,
@@ -49,7 +49,7 @@ suspend fun sendSectionMessage(
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
     )
 
-    val sectionMessage = TelegramMessageHandler.Result(
+    val sectionMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,

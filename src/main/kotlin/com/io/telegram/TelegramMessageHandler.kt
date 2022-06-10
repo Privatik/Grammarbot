@@ -5,6 +5,7 @@ import com.io.cache.entity.UserEntity
 import com.io.interactor.MessageInteractor
 import com.io.interactor.UserInteractor
 import com.io.model.LessonState
+import com.io.model.MultiBehaviours
 import com.io.model.TypeMessage
 import com.io.resourse.CommandConst
 import com.io.resourse.Resourse
@@ -34,9 +35,9 @@ interface TelegramMessageHandler {
             val finishBehaviorMessage: MessageInteractor.BehaviorForMessages
         ): Result
 
-        data class Delay(
+        data class Order(
             val behaviour: Ordinary,
-            val behaviours: List<suspend (Int) -> Ordinary>,
+            val behaviours: List<MultiBehaviours>,
         ): Result
     }
 
