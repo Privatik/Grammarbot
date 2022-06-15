@@ -51,7 +51,7 @@ private fun filterRuleByUserState(state: UserState): GetBooleanViaT<Entity.Messa
                 it.group == MessageGroup.CHOICE_SECTION ||
                 it.group == MessageGroup.SECTION
             }
-            UserState.LEARN -> { it.group == MessageGroup.LEARN ||  it.group == MessageGroup.SECTION}
+            UserState.LEARN -> { it.group == MessageGroup.ANSWER_ON_TASK ||  it.group == MessageGroup.SECTION}
             UserState.POST_LEARN,
             UserState.DESCRIBED_ERROR -> throw NoSuchMethodError()
         }

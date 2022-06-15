@@ -1,6 +1,7 @@
 package com.io.resourse
 
 object Resourse{
-    val section = "section"
-    val task = "task"
+    const val section = "section"
+    const val task = "task"
+    const val answer_task = "answer_task"
 }

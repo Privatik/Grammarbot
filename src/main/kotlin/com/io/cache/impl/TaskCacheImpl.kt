@@ -8,6 +8,7 @@ import com.io.cache.entity.Entity.Task.PutTaskEntity
 import com.io.cache.entity.Entity.Task.WriteTaskEntity
 import com.io.cache.entity.Entity.Task
 import com.io.util.extends.getRandomItemOrNull
+import java.util.*
 import kotlin.random.Random
 
 class TaskCacheImpl: TaskCache {
@@ -59,7 +60,7 @@ class TaskCacheImpl: TaskCache {
     }
 
     override suspend fun getTask(chatId: String, term: GetBooleanViaT<Task>): List<Task> {
-        return tasks.filter(term)
+        return listOf(tasks.first(term))
     }
 
     override suspend fun getCurrentTask(messageId: Int): Task {

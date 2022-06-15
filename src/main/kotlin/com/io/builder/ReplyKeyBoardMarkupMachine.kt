@@ -37,7 +37,8 @@ class ReplyKeyBoardMarkupBuilder(
     fun build(): ReplyKeyboardMarkup {
         return ReplyKeyboardMarkup(
             keyboard = keyboardMarkups,
-            resize_keyboard = true
+            resize_keyboard = true,
+            one_time_keyboard = true
         )
     }
 

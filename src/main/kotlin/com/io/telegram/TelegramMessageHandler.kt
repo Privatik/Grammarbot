@@ -7,6 +7,7 @@ import com.io.interactor.UserInteractor
 import com.io.model.LessonState
 import com.io.model.MultiBehaviours
 import com.io.model.TypeMessage
+import com.io.model.UserState
 import com.io.resourse.CommandConst
 import com.io.resourse.Resourse
 import com.io.telegram.command.*
@@ -55,6 +56,10 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
             return result
         }
 
+        if (user.currentState == UserState.LEARN){
+            return sendAnswerTaskMessage(user, messageIds)
+        }
+
         return null
     }
 
@@ -66,6 +71,7 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         handleCallbackQueryMessage(callbackQuery, user, messageIds)?.let { result ->
             return result
         }
+
         return null
     }
 

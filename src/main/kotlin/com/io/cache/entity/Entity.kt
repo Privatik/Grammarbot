@@ -8,6 +8,7 @@ sealed interface Entity{
         val id: Int,
         val chatId: String,
         val group: MessageGroup,
+        val time: Long
     ): Entity
 
     data class SectionRuleEntity(

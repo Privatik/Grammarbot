@@ -57,7 +57,7 @@ class MessageInteractorImpl(
 
     override suspend fun saveAsLearnMessage(chatId: String, taskId: Long, state: LessonState): GetMessageEntityViaIntToMessageGroup {
         return { id, _ ->
-            val message = messageCache.saveMessageId(chatId, id, MessageGroup.LEARN)
+            val message = messageCache.saveMessageId(chatId, id, MessageGroup.TASK)
             taskCache.saveTask(chatId, id, taskId, state)
             message
         }
@@ -80,14 +80,18 @@ class MessageInteractorImpl(
         return when(searchRule.first){
             MessageFilter.MESSAGE -> {
                 messageCache.getMessages(chatId, searchRule.second)
-                    .ifEmpty { listOf(emptyMessageEntity.copy(group = MessageGroup.CHOICE_SECTION)) }
                     .map { it.asTypeMessage() }
             }
             MessageFilter.SECTION -> {
-                sectionCache.getRules(searchRule.second).map { it.asTypeMessage() }
+                sectionCache.getRules(searchRule.second)
+                    .map { it.asTypeMessage() }
             }
             MessageFilter.TASK -> {
                 taskCache.getTask(chatId, searchRule.second)
+                    .map { it.asTypeMessage() }
+            }
+            MessageFilter.SECTION_MENU -> {
+                listOf(emptyMessageEntity.copy(group = MessageGroup.CHOICE_SECTION))
                     .map { it.asTypeMessage() }
             }
         }
@@ -98,10 +102,11 @@ class MessageInteractorImpl(
             MessageGroup.NONE,
             MessageGroup.RESULT,
             MessageGroup.START,
+            MessageGroup.ANSWER_ON_TASK,
             MessageGroup.DESCRIBE_ERROR -> TypeMessage.Info(this)
             MessageGroup.CHOICE_SECTION -> TypeMessage.SectionMenu(this, sectionCache.getAllSectionInfo())
             MessageGroup.SECTION -> TypeMessage.Section(this, sectionCache.getCurrentRules(id))
-            MessageGroup.LEARN -> TypeMessage.Learn(this, taskCache.getCurrentTask(id))
+            MessageGroup.TASK -> TypeMessage.Learn(this, taskCache.getCurrentTask(id))
         }
     }
 

@@ -4,6 +4,7 @@ import com.io.cache.MessageCache
 import com.io.cache.entity.Entity.MessageEntity
 import com.io.model.MessageGroup
 import com.io.util.GetBooleanViaT
+import java.util.*
 
 class MessageCacheImpl: MessageCache {
     private val messages = mutableListOf<MessageEntity>()
@@ -17,7 +18,8 @@ class MessageCacheImpl: MessageCache {
         val entity = MessageEntity(
             id = messageId,
             chatId = chatId,
-            group = messageGroup
+            group = messageGroup,
+            time = Calendar.getInstance().timeInMillis
         )
         messages.add(entity)
         print()

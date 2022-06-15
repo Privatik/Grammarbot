@@ -6,5 +6,6 @@ import com.io.model.MessageGroup
 val emptyMessageEntity = Entity.MessageEntity(
     id = -1,
     chatId = "",
-    group = MessageGroup.NONE
+    group = MessageGroup.NONE,
+    time = -1L
 )

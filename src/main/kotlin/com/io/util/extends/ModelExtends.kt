@@ -53,6 +53,17 @@ fun Entity.Task.createMessage():Message{
     }
 }
 
+fun Entity.Task.createAnswerMessage():Message{
+    return object : Message {
+        override val ru: String
+            get() = this@createAnswerMessage.rightAnswer
+        override val en: String
+            get() = this@createAnswerMessage.rightAnswer
+        override val callBack: String
+            get() = "${Resourse.answer_task}${this@createAnswerMessage.id}"
+    }
+}
+
 
 fun SectionEntity.inlineKeyBoardMarkup(currentLanguage: Language): InlineKeyboardButton {
     val message = createMessage()

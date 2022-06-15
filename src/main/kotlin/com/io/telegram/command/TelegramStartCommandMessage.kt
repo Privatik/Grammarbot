@@ -12,6 +12,7 @@ import com.io.telegram.deleteMessage
 import com.io.telegram.sendMessage
 import com.io.util.GetListRViaFuncT
 import com.io.util.extends.messageTermWithCheckChatId
+import com.io.util.extends.sectionMenuTerm
 import com.io.util.getSectionMenuInlineKeyboardMarkup
 
 suspend fun sendStartMessage(
@@ -23,13 +24,13 @@ suspend fun sendStartMessage(
     val chatId = userEntity.chatId
     val language = userEntity.currentLanguage
 
-    val filter = messageTermWithCheckChatId(chatId){
+    val filterStart = messageTermWithCheckChatId(chatId){
         it.group == MessageGroup.START || it.group == MessageGroup.CHOICE_SECTION
     }
 
-    val messages = messageIds(filter)
+    val messages = messageIds(filterStart)
 
-    if (messages.size > 1){
+    if (messages.isNotEmpty()){
         val deleteMessage = TelegramMessageHandler.Result.Ordinary(
             chatId = chatId,
             behaviour = deleteMessage(
@@ -42,7 +43,7 @@ suspend fun sendStartMessage(
         return listOf(deleteMessage)
     }
 
-    val sectionMenu = messages.first() as TypeMessage.SectionMenu
+    val sectionMenu  = messageIds(sectionMenuTerm()).first() as TypeMessage.SectionMenu
 
     val startMessage = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,

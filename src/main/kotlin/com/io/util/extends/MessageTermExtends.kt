@@ -23,6 +23,10 @@ fun messageTerm(block:GetBooleanViaT<MessageEntity>): Pair<MessageFilter, GetBoo
     }
 }
 
+fun sectionMenuTerm(): Pair<MessageFilter, GetBooleanViaT<Entity>> {
+    return MessageFilter.SECTION_MENU to { true }
+}
+
 fun sectionTerm(block:GetBooleanViaT<Entity.SectionRuleEntity>): Pair<MessageFilter, GetBooleanViaT<Entity>> {
     return MessageFilter.SECTION to {
         block(it as Entity.SectionRuleEntity)

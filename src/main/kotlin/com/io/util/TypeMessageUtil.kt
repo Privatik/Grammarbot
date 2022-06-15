@@ -1,18 +1,12 @@
 package com.io.util
 
-import com.io.builder.InlineKeyBoardMarkupBuilder
-import com.io.cache.entity.Entity
-import com.io.cache.entity.SectionEntity
-import com.io.cache.entity.UserEntity
-import com.io.interactor.TelegramInteractor
-import com.io.interactor.UserInteractor
 import com.io.model.Language
 import com.io.model.MessageGroup
 import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.resourse.Message
 import com.io.telegram.InlineKeyboardMarkup
-import com.io.telegram.ReplyKeyboard
+import com.io.util.extends.createAnswerMessage
 import com.io.util.extends.createMessage
 
 fun TypeMessage.getMessage(): Message{
@@ -20,8 +14,9 @@ fun TypeMessage.getMessage(): Message{
         MessageGroup.START -> Message.StartMessage
         MessageGroup.CHOICE_SECTION -> Message.ChoiceLessonMessage
         MessageGroup.SECTION -> (this as TypeMessage.Section).section.createMessage()
-        MessageGroup.LEARN -> (this as TypeMessage.Learn).task.createMessage()
-        else -> throw NoSuchMethodError()
+        MessageGroup.TASK -> (this as TypeMessage.Learn).task.createMessage()
+        MessageGroup.ANSWER_ON_TASK -> (this as TypeMessage.Learn).task.createAnswerMessage()
+        else -> throw NoSuchMethodError("Dont found \"getMessage\" group")
     }
 }
 fun TypeMessage.getReplyKeyboard(state: UserState, language: Language): InlineKeyboardMarkup?{
@@ -36,6 +31,9 @@ fun TypeMessage.getReplyKeyboard(state: UserState, language: Language): InlineKe
             if (state != UserState.LEARN){
                 getSectionInlineKeyboardMarkup(language)
             } else null
+        }
+        MessageGroup.ANSWER_ON_TASK -> {
+            getAnswerInlineKeyboardMarkup(language)
         }
         else -> null
     }

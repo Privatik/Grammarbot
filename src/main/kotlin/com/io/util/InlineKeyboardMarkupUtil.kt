@@ -22,3 +22,10 @@ fun getSectionInlineKeyboardMarkup(language: Language): InlineKeyboardMarkup {
         .addButtons(Message.PutTaskMessage, Message.WriteTaskMessage)
         .build()
 }
+
+fun getAnswerInlineKeyboardMarkup(language: Language): InlineKeyboardMarkup {
+    return InlineKeyBoardMarkupBuilder(language)
+        .addButtons(Message.TranslateMessage)
+        .addButtons(Message.NextMessage)
+        .build()
+}

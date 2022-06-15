@@ -10,6 +10,7 @@ import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.telegram.TelegramMessageHandler
 import com.io.telegram.deleteMessage
+import com.io.telegram.editMessageText
 import com.io.telegram.sendMessage
 import com.io.util.GetListRViaFuncT
 import com.io.util.extends.createMessage
@@ -31,7 +32,13 @@ suspend fun sendTaskMessage(
         it.group == MessageGroup.SECTION
     }
 
+    val filterHaveTask = messageTermWithCheckChatId(chatId){
+        it.group == MessageGroup.TASK
+    }
+
     val sectionMessage = messageIds(filterMessage).first() as TypeMessage.Section
+
+    val isFirstTask = messageIds(filterHaveTask).isEmpty()
 
     val filterTask = taskTerm {
         it.state == state && it.sectionId == sectionMessage.section.id
@@ -41,40 +48,35 @@ suspend fun sendTaskMessage(
         it[Random.nextInt(it.size)] as TypeMessage.Learn
     }
 
-    val deleteLastSection = TelegramMessageHandler.Result.Ordinary(
-        chatId = chatId,
-        behaviour = deleteMessage(
-            chat_id = chatId,
-            messageId = sectionMessage.message.id
-        ).asDeleteBehaviour(MessageGroup.NONE.name),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.Delete
-    )
+    val result = mutableListOf<TelegramMessageHandler.Result>()
 
-    val newSectionMessage = TelegramMessageHandler.Result.Ordinary(
-        chatId = chatId,
-        behaviour = sendMessage(
-            chat_id = chatId,
-            text = sectionMessage.section.createMessage().get(language),
-            replyMarkup = getTaskReplyKeyboardMarkup(language)
-        ).asSendBehaviour(MessageGroup.SECTION.name),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsSection(sectionMessage.section.id)
-    )
+    if (isFirstTask){
+        val updateSectionMessage = TelegramMessageHandler.Result.Ordinary(
+            chatId = chatId,
+            behaviour = editMessageText(
+                chat_id = chatId,
+                messageId = sectionMessage.message.id,
+                text = sectionMessage.section.createMessage().get(language),
+                replyMarkup = null
+            ).asSendBehaviour(MessageGroup.SECTION.name),
+            finishBehaviorUser = UserInteractor.BehaviorForUser.None,
+            finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
+        )
+        result.add(updateSectionMessage)
+    }
 
     val sendTask = TelegramMessageHandler.Result.Ordinary(
         chatId = chatId,
         behaviour = sendMessage(
             chat_id = chatId,
             text = taskMessage.task.createMessage().get(language),
-        ).asSendBehaviour(MessageGroup.LEARN.name),
+            replyMarkup = if (isFirstTask) getTaskReplyKeyboardMarkup(language) else null
+        ).asSendBehaviour(MessageGroup.TASK.name),
         finishBehaviorUser = UserInteractor.BehaviorForUser.Update(state = UserState.LEARN),
         finishBehaviorMessage = MessageInteractor.BehaviorForMessages.SaveAsTask(taskMessage.task.id, state)
     )
 
-    return listOf(
-        deleteLastSection,
-        newSectionMessage,
-        sendTask
-    )
+    result.add(sendTask)
+
+    return result
 }
