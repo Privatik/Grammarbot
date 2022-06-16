@@ -91,7 +91,7 @@ class TelegramMethod(
                         telegramResponse.mapIndexed { indexChild, telegramResponseChild ->
                             TelegramResponseBody.Ordinary(
                                 telegramResponseChild.result.message_id,
-                                if (indexChild == 0) body.init.name else body.behaviours[index - 1].second
+                                if (indexChild == 0) body.init.name else body.behaviours[indexChild - 1].second
                             )
                         }
                     )

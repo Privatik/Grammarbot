@@ -127,9 +127,9 @@ class TelegramHttpClient(
             result.add(answer)
             val nextBody = funcBody(answer.result.message_id)
             sendMessageFromBehavior(nextBody)
-        }
+        }.await()
 
-        return coroutineScope.async { result + lastMessage.await()}
+        return coroutineScope.async { result + lastMessage.first()}
     }
     
 }

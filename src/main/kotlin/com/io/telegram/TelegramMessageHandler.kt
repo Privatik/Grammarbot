@@ -9,6 +9,7 @@ import com.io.model.MultiBehaviours
 import com.io.model.TypeMessage
 import com.io.model.UserState
 import com.io.resourse.CommandConst
+import com.io.resourse.Message.Companion.FinishLessonMessage
 import com.io.resourse.Resourse
 import com.io.telegram.command.*
 import com.io.util.GetListRViaFuncT
@@ -56,8 +57,14 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
             return result
         }
 
-        if (user.currentState == UserState.LEARN){
-            return sendAnswerTaskMessage(user, messageIds)
+        when (user.currentState){
+            UserState.LEARN -> {
+                return sendAnswerTaskMessage(user, messageIds)
+            }
+            UserState.PAUSE_LEARN -> {
+                return deleteLastMessage(user, message.message_id)
+            }
+            else -> {}
         }
 
         return null
@@ -80,8 +87,12 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
         user: UserEntity,
         messageIds: GetListRViaFuncT<Entity, TypeMessage>
     ): List<TelegramMessageHandler.Result>? {
-        return when (message.text){
-            CommandConst.START -> sendStartMessage(user, message.message_id, messageIds)
+        val text = message.text!!
+        return when {
+            text == CommandConst.START -> sendStartMessage(user, message.message_id, messageIds)
+            FinishLessonMessage.checkOnEqualsByLanguageField(text) -> {
+                null
+            }
             else -> null
         }
     }
@@ -117,6 +128,10 @@ internal class TelegramMessageHandlerImpl: TelegramMessageHandler {
                 user,
                 messageIds,
                 user.anotherLanguage()
+            )
+            com.io.resourse.Message.NextMessage.callBack -> sendTaskMessage(
+                user,
+                messageIds
             )
             else -> null
         }

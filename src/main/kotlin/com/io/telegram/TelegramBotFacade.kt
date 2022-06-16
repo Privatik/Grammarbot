@@ -1,6 +1,9 @@
 package com.io.telegram
 
+import com.io.interactor.MessageInteractor
 import com.io.interactor.TelegramInteractor
+import com.io.model.MessageGroup
+import com.io.model.UserState
 import com.io.model.asMessageGroup
 import com.io.util.GetMessageEntityViaIntToMessageGroup
 import com.io.util.GetUserEntity
@@ -23,6 +26,9 @@ class TelegramBotFacade(
 
         if (update.hasMessage() && update.message!!.hasText()){
             val userToIds = telegramInteractor.getUserToMessageIds(update.message!!.chat.id)
+
+            saveAnswer(userToIds.first.currentState, update.message!!)
+
             return telegramMessageHandler.handleMessage(
                 userToIds.first,
                 update.message!!,
@@ -33,13 +39,22 @@ class TelegramBotFacade(
         return null
     }
 
+    private suspend fun saveAnswer(state: UserState, message: Message){
+        if (state == UserState.LEARN){
+            val saveAnswer = telegramInteractor.processingMessage(
+                message.chat.id,
+                MessageInteractor.BehaviorForMessages.Save
+            )
+            saveAnswer(message.message_id, MessageGroup.ANSWER_ON_TASK)
+        }
+    }
+
     private suspend fun List<TelegramMessageHandler.Result>.asTelegramResults(): List<TelegramResult>{
         return map { result ->
             when (result){
                 is TelegramMessageHandler.Result.Order -> result.asTelegramResult()
                 is TelegramMessageHandler.Result.Ordinary -> result.asTelegramResult()
             }
-
         }
     }
 

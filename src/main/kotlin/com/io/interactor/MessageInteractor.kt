@@ -48,16 +48,16 @@ class MessageInteractorImpl(
     }
 
     override suspend fun saveAsSectionMessage(chatId: String, sectionId: String): GetMessageEntityViaIntToMessageGroup {
-        return { id, _ ->
-            val message = messageCache.saveMessageId(chatId, id, MessageGroup.SECTION)
+        return { id, group ->
+            val message = messageCache.saveMessageId(chatId, id, group)
             sectionCache.saveMessage(chatId, id, sectionId)
             message
         }
     }
 
     override suspend fun saveAsLearnMessage(chatId: String, taskId: Long, state: LessonState): GetMessageEntityViaIntToMessageGroup {
-        return { id, _ ->
-            val message = messageCache.saveMessageId(chatId, id, MessageGroup.TASK)
+        return { id, group ->
+            val message = messageCache.saveMessageId(chatId, id, group)
             taskCache.saveTask(chatId, id, taskId, state)
             message
         }
@@ -106,6 +106,7 @@ class MessageInteractorImpl(
             MessageGroup.DESCRIBE_ERROR -> TypeMessage.Info(this)
             MessageGroup.CHOICE_SECTION -> TypeMessage.SectionMenu(this, sectionCache.getAllSectionInfo())
             MessageGroup.SECTION -> TypeMessage.Section(this, sectionCache.getCurrentRules(id))
+            MessageGroup.RIGHT_ANSWER_ON_TASK,
             MessageGroup.TASK -> TypeMessage.Learn(this, taskCache.getCurrentTask(id))
         }
     }

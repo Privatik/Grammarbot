@@ -15,11 +15,15 @@ fun TypeMessage.getMessage(): Message{
         MessageGroup.CHOICE_SECTION -> Message.ChoiceLessonMessage
         MessageGroup.SECTION -> (this as TypeMessage.Section).section.createMessage()
         MessageGroup.TASK -> (this as TypeMessage.Learn).task.createMessage()
-        MessageGroup.ANSWER_ON_TASK -> (this as TypeMessage.Learn).task.createAnswerMessage()
+        MessageGroup.RIGHT_ANSWER_ON_TASK -> (this as TypeMessage.Learn).task.createAnswerMessage()
         else -> throw NoSuchMethodError("Dont found \"getMessage\" group")
     }
 }
-fun TypeMessage.getReplyKeyboard(state: UserState, language: Language): InlineKeyboardMarkup?{
+fun TypeMessage.getReplyKeyboard(
+    state: UserState,
+    language: Language,
+    isLastMessage: Boolean
+): InlineKeyboardMarkup?{
 
     return when (this.message.group){
         MessageGroup.CHOICE_SECTION -> {
@@ -32,8 +36,10 @@ fun TypeMessage.getReplyKeyboard(state: UserState, language: Language): InlineKe
                 getSectionInlineKeyboardMarkup(language)
             } else null
         }
-        MessageGroup.ANSWER_ON_TASK -> {
-            getAnswerInlineKeyboardMarkup(language)
+        MessageGroup.RIGHT_ANSWER_ON_TASK -> {
+            if (isLastMessage){
+                getAnswerInlineKeyboardMarkup(language)
+            } else null
         }
         else -> null
     }

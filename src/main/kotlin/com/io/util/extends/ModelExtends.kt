@@ -53,12 +53,23 @@ fun Entity.Task.createMessage():Message{
     }
 }
 
+fun String.createSimpleMessage():Message{
+    return object : Message {
+        override val ru: String
+            get() = this@createSimpleMessage
+        override val en: String
+            get() = this@createSimpleMessage
+        override val callBack: String
+            get() = this@createSimpleMessage
+    }
+}
+
 fun Entity.Task.createAnswerMessage():Message{
     return object : Message {
         override val ru: String
-            get() = this@createAnswerMessage.rightAnswer
+            get() = "${Resourse.answer}${this@createAnswerMessage.rightAnswer}"
         override val en: String
-            get() = this@createAnswerMessage.rightAnswer
+            get() = "${Resourse.answer}${this@createAnswerMessage.rightAnswer}"
         override val callBack: String
             get() = "${Resourse.answer_task}${this@createAnswerMessage.id}"
     }

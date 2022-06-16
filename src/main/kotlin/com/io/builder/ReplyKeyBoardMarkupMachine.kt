@@ -34,11 +34,29 @@ class ReplyKeyBoardMarkupBuilder(
         return this
     }
 
+    fun addButtons(messages: List<Message>, group: Int = 2): ReplyKeyBoardMarkupBuilder{
+        var index = 0
+        while (index < messages.size){
+            val list = mutableListOf<KeyboardButton>()
+            for (i in (index until index + group)){
+                val button = messages.getOrNull(i)?.let {
+                    val keyBoardMarkup = createKeyboardMarkup(it)
+                    KeyboardButton(
+                        text = keyBoardMarkup.text(currentLanguage)
+                    )
+                }
+                button?.let { list.add(it) }
+            }
+            keyboardMarkups.add(list)
+            index += group
+        }
+        return this
+    }
+
     fun build(): ReplyKeyboardMarkup {
         return ReplyKeyboardMarkup(
             keyboard = keyboardMarkups,
             resize_keyboard = true,
-            one_time_keyboard = true
         )
     }
 

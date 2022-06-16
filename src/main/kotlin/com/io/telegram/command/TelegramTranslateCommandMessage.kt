@@ -22,24 +22,27 @@ suspend fun editTranslateMessage(
     val filter = messageTermWithCheckChatId(chatId, filterByUser)
     val newMessageIds = messageIds(filter)
 
-    val supportMessages = if (userEntity.currentState == UserState.LEARN){
-        createFinishMessages(userEntity, language)
-    } else listOf<TelegramMessageHandler.Result>()
+//    val supportMessages = if (userEntity.currentState == UserState.LEARN){
+//        createFinishMessages(userEntity, language)
+//    } else emptyList()
+
+    val lastMessage = newMessageIds.maxByOrNull { it.message.time }!!
 
     return newMessageIds.mapIndexed { index, typeMessage ->
+        val isLastMessage = typeMessage.message.id == lastMessage.message.id
         TelegramMessageHandler.Result.Ordinary(
             chatId = chatId,
             behaviour = editMessageText(
                 chat_id = chatId,
                 text = typeMessage.getMessage().get(language),
                 messageId = typeMessage.message.id,
-                replyMarkup = typeMessage.getReplyKeyboard(userEntity.currentState, language)
+                replyMarkup = typeMessage.getReplyKeyboard(userEntity.currentState, language, isLastMessage)
             ).asSendBehaviour(typeMessage.message.group.name),
             finishBehaviorUser = if (index == 0) UserInteractor.BehaviorForUser.Update(language = language)
             else UserInteractor.BehaviorForUser.None,
             finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
         )
-    } + supportMessages
+    }
 }
 
 private fun filterRuleByUserState(state: UserState): GetBooleanViaT<Entity.MessageEntity> {
@@ -51,46 +54,10 @@ private fun filterRuleByUserState(state: UserState): GetBooleanViaT<Entity.Messa
                 it.group == MessageGroup.CHOICE_SECTION ||
                 it.group == MessageGroup.SECTION
             }
-            UserState.LEARN -> { it.group == MessageGroup.ANSWER_ON_TASK ||  it.group == MessageGroup.SECTION}
+            UserState.PAUSE_LEARN,
+            UserState.LEARN -> { it.group == MessageGroup.RIGHT_ANSWER_ON_TASK ||  it.group == MessageGroup.SECTION}
             UserState.POST_LEARN,
             UserState.DESCRIBED_ERROR -> throw NoSuchMethodError()
         }
     }
-}
-
-private fun createFinishMessages(
-    userEntity: UserEntity,
-    language: Language
-) : List<TelegramMessageHandler.Result>{
-    val chatId = userEntity.chatId
-
-    val supportMessageWithFinishButton = TelegramMessageHandler.Result.Ordinary(
-        chatId = chatId,
-        behaviour = sendMessage(
-            chat_id = chatId,
-            text = TranslateMessage.get(language),
-            replyMarkup = getTaskReplyKeyboardMarkup(language)
-        ).asSendBehaviour(MessageGroup.NONE.name),
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
-    )
-
-    val deleteMessage = MultiBehaviours(
-        behaviour = { id: Int ->
-            deleteMessage(
-                chat_id = chatId,
-                messageId = id,
-            ).asDeleteBehaviour(MessageGroup.NONE.name)
-        },
-        name = MessageGroup.NONE.name,
-        finishBehaviorUser = UserInteractor.BehaviorForUser.None,
-        finishBehaviorMessage = MessageInteractor.BehaviorForMessages.None
-    )
-
-    val order = TelegramMessageHandler.Result.Order(
-        behaviour = supportMessageWithFinishButton,
-        behaviours = listOf(deleteMessage)
-    )
-
-    return listOf(order)
 }

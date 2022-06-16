@@ -33,20 +33,20 @@ interface Message{
         )
 
         val PutTaskMessage = Const(
-            ru = "Вставка",
-            en = "Put",
+            ru = "Вставка в сообщение",
+            en = "Put in message",
             callBack = "putTask"
         )
 
         val WriteTaskMessage = Const(
-            ru = "Перевод",
-            en = "Translate",
+            ru = "Перевод сообщения",
+            en = "Translate message",
             callBack = "writeTask"
         )
 
         val FinishLessonMessage = Const(
-            ru = "Закончить урок",
-            en = "Finish lesson",
+            ru = "Закончить",
+            en = "Finish",
             callBack = "finishLesson"
         )
 
@@ -69,4 +69,7 @@ interface Message{
             Language.EN -> en
         }
     }
+
+    fun checkOnEqualsByLanguageField(text: String): Boolean =
+        ru == text || en == text
 }
